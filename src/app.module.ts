@@ -12,6 +12,11 @@ import { AddCorrelationIdInterceptor } from './lib/add-correlation-id-intercepto
 import { TimeoutInterceptor } from './lib/timeout.interceptor';
 import { UsersModule } from './modules/users/users.module';
 import { AuthModule } from './modules/auth/auth.module';
+import { ProductsModule } from './modules/products/products.module';
+import { ServeStaticModule } from '@nestjs/serve-static';
+import { join } from 'path';
+import { OrderModule } from './modules/order/order.module';
+import { AdminModule } from './modules/admin/admin.module';
 
 @Module({
   imports: [
@@ -24,6 +29,12 @@ import { AuthModule } from './modules/auth/auth.module';
     TypeOrmModule.forRoot(ormconfig),
     UsersModule,
     AuthModule,
+    ProductsModule,
+    ServeStaticModule.forRoot({
+      rootPath: join(__dirname, '..', 'images'),
+    }),
+    OrderModule,
+    AdminModule,
   ],
   controllers: [AppController],
   providers: [

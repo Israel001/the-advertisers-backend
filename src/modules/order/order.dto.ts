@@ -1,17 +1,18 @@
 import { Type } from "class-transformer";
-import { IsOptional, IsString, ValidateNested } from "class-validator";
+import { IsEnum, IsNumber, IsOptional, IsString, ValidateNested } from "class-validator";
 import { PaginationInput } from "src/base/dto";
 import { IsValidDate } from "src/tools/date-validator";
+import { OrderStatus } from "src/types";
 
-export class AdminLoginDTO {
+export class CreateOrderDto {
   @IsString()
-  email: string;
+  details: string;
 
-  @IsString()
-  password: string;
+  @IsNumber()
+  paymentId: number;
 }
 
-export class CustomerFilter {
+export class OrderFilter {
   @IsOptional()
   @IsValidDate()
   startDate?: Date;
@@ -19,17 +20,17 @@ export class CustomerFilter {
   @IsOptional()
   @IsValidDate()
   endDate?: Date;
+
+  @IsOptional()
+  @IsEnum(OrderStatus)
+  status?: OrderStatus;
 }
 
-export class CustomerQuery {
+export class OrderQuery {
   @ValidateNested()
-  @Type(() => CustomerFilter)
+  @Type(() => OrderFilter)
   @IsOptional()
-  filter?: CustomerFilter;
-
-  @IsOptional()
-  @IsString()
-  search?: string;
+  filter?: OrderFilter;
 
   @ValidateNested()
   @Type(() => PaginationInput)

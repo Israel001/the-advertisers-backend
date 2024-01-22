@@ -5,11 +5,12 @@ import {
   Param,
   ParseIntPipe,
   Post,
+  Put,
   Req,
   UseGuards,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
-import { CreateCustomerDto, CreateStoreDto, InviteUserDto } from './users.dto';
+import { CreateCustomerDto, CreateStoreDto, InviteUserDto, UpdateCustomerDto, UpdateStoreDto } from './users.dto';
 import { JwtAuthGuard } from 'src/guards/jwt-auth-guard';
 import { Request } from 'express';
 import { Role } from 'src/decorators/roles.decorator';
@@ -23,6 +24,25 @@ export class UsersController {
   @Post('/customer')
   registerCustomer(@Body() body: CreateCustomerDto) {
     return this.usersService.createCustomer(body);
+  }
+
+  @Put('/customer/:id')
+  @UseGuards(JwtAuthGuard)
+  updateCustomer(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() body: UpdateCustomerDto,
+  ) {
+    return this.usersService.updateCustomer(id, body);
+  }
+
+  @Put('/store/:id')
+  @UseGuards(JwtAuthGuard, StoreGuard, RoleGuard)
+  @Role({ roles: ['owner', 'admin'] })
+  updateStore(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() body: UpdateStoreDto,
+  ) {
+    return this.usersService.updateStore(id, body);
   }
 
   @Post('/store')
@@ -75,5 +95,14 @@ export class UsersController {
   @Role({ roles: ['owner', 'admin'] })
   getStoreUsers(@Req() request: Request) {
     return this.usersService.getStoreUsers(request.user as any);
+  }
+
+  @Post('save-wishlist')
+  @UseGuards(JwtAuthGuard)
+  saveWishlist(
+    @Body('wishlistData') wishlistData: string,
+    @Req() request: Request,
+  ) {
+    return this.usersService.saveWishlist(wishlistData, request.user as any);
   }
 }

@@ -7,6 +7,26 @@ import {
   Length,
 } from 'class-validator';
 
+export class UpdateCustomerDto {
+  @IsString()
+  @Length(1, 150)
+  @IsOptional()
+  fullName: string;
+
+  @IsNumberString()
+  @Length(1, 15)
+  @IsOptional()
+  phone: string;
+
+  @IsNumber()
+  @IsOptional()
+  stateId: number;
+
+  @IsNumber()
+  @IsOptional()
+  lgaId: number;
+}
+
 export class CreateCustomerDto {
   @IsString()
   @Length(1, 150)
@@ -37,6 +57,50 @@ export class CreateCustomerDto {
 
   @IsString()
   password: string;
+}
+
+export class UpdateStoreDto {
+  @IsString()
+  @Length(1, 200)
+  @IsOptional()
+  storeName: string;
+
+  @IsString()
+  @Length(1, 150)
+  @IsOptional()
+  contactName: string;
+
+  @IsString()
+  @Length(1, 15)
+  @IsOptional()
+  contactPhone: string;
+
+  @IsEmail()
+  @Length(1, 50)
+  @IsOptional()
+  contactEmail: string;
+
+  @IsNumber()
+  @IsOptional()
+  stateId: number;
+
+  @IsNumber()
+  @IsOptional()
+  lgaId: number;
+
+  @IsString()
+  @Length(1, 50)
+  @IsOptional()
+  street: string;
+
+  @IsString()
+  @IsOptional()
+  houseNo: string;
+
+  @IsString()
+  @Length(1, 50)
+  @IsOptional()
+  landmark: string;
 }
 
 export class CreateStoreDto {

@@ -199,3 +199,18 @@ export class StoreUsers extends BaseEntity {
   @DeleteDateColumn()
   deletedAt?: Date;
 }
+
+@Entity('wishlist', { synchronize: true })
+export class Wishlist extends BaseEntity {
+  @PrimaryGeneratedColumn()
+  @AutoMap()
+  id: number;
+
+  @Column('longtext')
+  @AutoMap()
+  data: string;
+
+  @ManyToOne(() => Customer)
+  @AutoMap()
+  customer: Customer;
+}

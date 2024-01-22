@@ -1,28 +1,16 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { Customer, OTP, Roles, Store, StoreUsers, Wishlist } from './users.entity';
-import { Lga } from 'src/entities/lga.entity';
-import { State } from 'src/entities/state.entity';
+import { Order, Payment } from './order.entity';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { JwtAuthConfiguration } from 'src/config/configuration';
 import { JwtModule } from '@nestjs/jwt';
 import { JwtAuthConfig } from 'src/config/types/jwt-auth.config';
-import { SharedModule } from '../shared/shared.module';
-import { UsersController } from './users.controller';
-import { UsersService } from './users.service';
+import { OrderController } from './order.controller';
+import { OrderService } from './order.service';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([
-      Customer,
-      Store,
-      StoreUsers,
-      OTP,
-      Roles,
-      Lga,
-      State,
-      Wishlist
-    ]),
+    TypeOrmModule.forFeature([Order, Payment]),
     ConfigModule.forRoot({
       load: [JwtAuthConfiguration],
     }),
@@ -34,10 +22,9 @@ import { UsersService } from './users.service';
       }),
       inject: [ConfigService],
     }),
-    SharedModule,
   ],
-  controllers: [UsersController],
-  providers: [UsersService],
-  exports: [UsersService],
+  controllers: [OrderController],
+  providers: [OrderService],
+  exports: [OrderService],
 })
-export class UsersModule {}
+export class OrderModule {}

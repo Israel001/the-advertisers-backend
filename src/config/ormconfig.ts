@@ -31,6 +31,4 @@ const config: TypeOrmModuleOptions = {
   migrations: [path.join(__dirname, '..', '/migrations/**/*{.ts,.js}')],
 };
 
-console.log(config);
-
 export = config;

@@ -5,24 +5,32 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { JwtAuthConfig } from 'src/config/types/jwt-auth.config';
-import { Customer, OTP, Roles, Store, StoreUsers } from './users.entity';
+import {
+  Customer,
+  OTP,
+  Roles,
+  Store,
+  StoreUsers,
+  Wishlist,
+} from './users.entity';
 import { Repository } from 'typeorm';
 import { Lga } from 'src/entities/lga.entity';
 import { State } from 'src/entities/state.entity';
 import { SharedService } from '../shared/shared.service';
-import { JwtService } from '@nestjs/jwt';
-import { ConfigService } from '@nestjs/config';
 import { nanoid } from 'nanoid';
 import { IAuthContext, UserRoles, UserType } from 'src/types';
 import * as bcrypt from 'bcryptjs';
-import { CreateCustomerDto, CreateStoreDto, InviteUserDto } from './users.dto';
+import {
+  CreateCustomerDto,
+  CreateStoreDto,
+  InviteUserDto,
+  UpdateCustomerDto,
+  UpdateStoreDto,
+} from './users.dto';
 import { generateOtp } from 'src/utils';
 
 @Injectable()
 export class UsersService {
-  private readonly jwtConfig: JwtAuthConfig;
-
   constructor(
     @InjectRepository(Customer)
     private readonly customerRepository: Repository<Customer>,
@@ -35,11 +43,29 @@ export class UsersService {
     @InjectRepository(Lga) private readonly lgaRepository: Repository<Lga>,
     @InjectRepository(State)
     private readonly stateRepository: Repository<State>,
+    @InjectRepository(Wishlist)
+    private readonly wishlistRepository: Repository<Wishlist>,
     private readonly sharedService: SharedService,
-    private readonly jwtService: JwtService,
-    private readonly configService: ConfigService,
-  ) {
-    this.jwtConfig = this.configService.get<JwtAuthConfig>('jwtAuthConfig');
+  ) {}
+
+  async updateStore(id: number, body: UpdateStoreDto) {
+    const store = await this.storeRepository.findOneBy({ id });
+    if (!store) throw new NotFoundException('Store not found');
+    const storeModel = this.storeRepository.create({
+      id,
+      ...body,
+    });
+    return this.storeRepository.save(storeModel);
+  }
+
+  async updateCustomer(id: number, body: UpdateCustomerDto) {
+    const customer = await this.customerRepository.findOneBy({ id });
+    if (!customer) throw new NotFoundException('Customer not found');
+    const customerModel = this.customerRepository.create({
+      id,
+      ...body,
+    });
+    return this.customerRepository.save(customerModel);
   }
 
   async createStore(user: CreateStoreDto) {
@@ -359,5 +385,13 @@ export class UsersService {
 
   async getStoreUsers({ store }: IAuthContext) {
     return this.storeUserRepository.findBy({ store: { id: store.id } });
+  }
+
+  async saveWishlist(wishlistData: string, { userId }: IAuthContext) {
+    const wishlistModel = this.wishlistRepository.create({
+      data: wishlistData,
+      customer: { id: userId },
+    });
+    return this.wishlistRepository.save(wishlistModel);
   }
 }

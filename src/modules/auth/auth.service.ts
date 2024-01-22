@@ -51,7 +51,7 @@ export class AuthService {
       name: user.fullName,
       phone: user.phone,
       type: user.type,
-      psp: user.psp,
+      store: user.store,
       role: user.role,
     };
     switch (user.type) {

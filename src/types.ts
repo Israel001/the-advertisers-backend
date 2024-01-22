@@ -39,3 +39,30 @@ export interface IAuthContext {
   store: Store;
   role: Roles;
 }
+
+export enum OrderDir {
+  ASC = 'ASC',
+  DESC = 'DESC',
+}
+
+export enum PaymentType {
+  INCOMING = 'incoming',
+  OUTGOING = 'outgoing',
+}
+
+export enum Currencies {
+  NGN = 'NGN',
+}
+
+export enum OrderStatus {
+  PENDING = 'PENDING',
+  IN_PROGRESS = 'IN_PROGRESS',
+  DELIVERED = 'DELIVERED',
+  CANCELED = 'CANCELED',
+}
+
+export interface IAdminAuthContext {
+  name: string;
+  email: string;
+  userId: number;
+}
