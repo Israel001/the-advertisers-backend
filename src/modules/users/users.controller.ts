@@ -16,8 +16,11 @@ import { Request } from 'express';
 import { Role } from 'src/decorators/roles.decorator';
 import { StoreGuard } from 'src/guards/store-guard';
 import { RoleGuard } from 'src/guards/role-guard';
+import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
 
 @Controller('users')
+@ApiTags('users')
+@ApiBearerAuth()
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 

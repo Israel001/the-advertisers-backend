@@ -13,8 +13,11 @@ import { JwtAuthGuard } from 'src/guards/jwt-auth-guard';
 import { CreateOrderDto, OrderQuery } from './order.dto';
 import { Request } from 'express';
 import { OrderService } from './order.service';
+import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
 
 @Controller('order')
+@ApiTags('orders')
+@ApiBearerAuth()
 export class OrderController {
   constructor(private readonly orderService: OrderService) {}
 
@@ -40,9 +43,6 @@ export class OrderController {
     @Param('transactionId') transactionId: string,
     @Body('amount', ParseIntPipe) amount: number,
   ) {
-    return this.orderService.verifyTransaction(
-      transactionId,
-      amount,
-    );
+    return this.orderService.verifyTransaction(transactionId, amount);
   }
 }

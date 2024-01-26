@@ -29,8 +29,11 @@ import { ImageInterceptor } from 'src/lib/image.interceptor';
 import { diskStorage } from 'multer';
 import { nanoid } from 'nanoid';
 import { IAuthContext } from 'src/types';
+import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
 
 @Controller('products')
+@ApiTags('products')
+@ApiBearerAuth()
 export class ProductsController {
   constructor(private readonly productsService: ProductsService) {}
 

@@ -21,6 +21,7 @@ import { IAuthContext, OrderDir } from 'src/types';
 import { PaginationInput } from 'src/base/dto';
 import fs from 'fs';
 import path, { dirname } from 'path';
+import { buildResponseDataWithPagination } from 'src/utils';
 
 @Injectable()
 export class ProductsService {
@@ -52,23 +53,29 @@ export class ProductsService {
       ...(filter?.avgRating ? { avgRating: parseInt(filter?.avgRating) } : {}),
       ...(filter?.storeId ? { store: { id: parseInt(filter?.storeId) } } : {}),
     };
-    return this.productRepository.find({
-      where: [
-        {
-          ...baseConditions,
-          ...(search ? { name: Like(`%${search}%`) } : {}),
-        },
-        {
-          ...baseConditions,
-          ...(search ? { description: Like(`%${search}%`) } : {}),
-        },
-      ],
+    const allConditions = [
+      {
+        ...baseConditions,
+        ...(search ? { name: Like(`%${search}%`) } : {}),
+      },
+      {
+        ...baseConditions,
+        ...(search ? { description: Like(`%${search}%`) } : {}),
+      },
+    ];
+    const totalProducts = await this.productRepository.countBy(allConditions);
+    const products = await this.productRepository.find({
+      where: allConditions,
       order: {
         [pagination.orderBy || 'createdAt']:
           pagination.orderDir || OrderDir.DESC,
       },
       skip: limit * (page - 1),
       take: limit,
+    });
+    return buildResponseDataWithPagination(products, totalProducts, {
+      page,
+      limit,
     });
   }
 

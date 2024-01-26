@@ -18,8 +18,11 @@ import {
 } from './auth.dto';
 import { JwtAuthGuard } from 'src/guards/jwt-auth-guard';
 import { extractTokenFromReq } from 'src/utils';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
 @Controller('auth')
+@ApiTags('auth')
+@ApiBearerAuth()
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 

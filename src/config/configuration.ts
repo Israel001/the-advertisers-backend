@@ -2,6 +2,9 @@ import { registerAs } from '@nestjs/config';
 import { RedisConfig } from './types/redis.config';
 import { JwtAuthConfig } from './types/jwt-auth.config';
 import { SmtpConfig } from './types/smtp.config';
+import { MonnifyConfig } from './types/monnify.config';
+import { PaymentProviderConfig } from './types/payments.config';
+import { PaymentProviderType } from 'src/types';
 
 export const RedisConfiguration = registerAs(
   'redisConfig',
@@ -31,5 +34,22 @@ export const SmtpConfiguration = registerAs(
     port: process.env.SMTP_PORT,
     username: process.env.SMTP_USERNAME,
     password: process.env.SMTP_PASSWORD,
+  }),
+);
+
+export const MonnifyConfiguration = registerAs(
+  'monnifyConfig',
+  (): MonnifyConfig => ({
+    secretKey: process.env.MONNIFY_SECRET_KEY,
+    baseUrl: process.env.MONNIFY_BASE_URL,
+    apiKey: process.env.MONNIFY_API_KEY,
+    accountNumber: process.env.MONNIFY_ACCOUNT_NUMBER,
+  }),
+);
+
+export const PaymentProviderConfiguration = registerAs(
+  'paymentProviderConfig',
+  (): PaymentProviderConfig => ({
+    providerId: process.env.PAYMENT_PROVIDER as PaymentProviderType,
   }),
 );

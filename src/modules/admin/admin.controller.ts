@@ -29,8 +29,11 @@ import { ImageInterceptor } from 'src/lib/image.interceptor';
 import { OrderQuery } from '../order/order.dto';
 import { OrderService } from '../order/order.service';
 import { OrderStatus } from 'src/types';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
 @Controller('/admin')
+@ApiTags('admin')
+@ApiBearerAuth()
 @UseGuards(AdminJwtAuthGuard)
 export class AdminController {
   constructor(

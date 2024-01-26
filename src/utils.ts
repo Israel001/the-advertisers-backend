@@ -1,5 +1,6 @@
 import { UnauthorizedException } from '@nestjs/common';
 import otpGenerator from 'otp-generator';
+import { BasePaginatedResponseDto } from './base/dto';
 
 export const replacer = (i: number, arr: any, str: string) => {
   const len = arr.length;
@@ -25,4 +26,24 @@ export const extractTokenFromReq = (req: Request, error: string) => {
   const token = authorizationHeader.split(' ')[1];
   if (!token) throw new UnauthorizedException(error);
   return token;
+};
+
+export const buildResponseDataWithPagination = <T>(
+  data: T[] | any,
+  total: number,
+  pagination: { limit: number; page: number },
+): BasePaginatedResponseDto<T> => {
+  return {
+    data,
+    pagination: {
+      limit: Number(pagination.limit),
+      page: Number(pagination.page),
+      total,
+      size: data.length,
+      pages:
+        Number(Math.ceil(total / pagination.limit).toFixed()) ||
+        (total && 1) ||
+        0,
+    },
+  };
 };

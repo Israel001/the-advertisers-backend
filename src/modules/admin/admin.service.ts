@@ -15,6 +15,7 @@ import { Customer, Store, StoreUsers } from '../users/users.entity';
 import { UpdateCustomerDto, UpdateStoreDto } from '../users/users.dto';
 import { Products } from '../products/products.entity';
 import { Order } from '../order/order.entity';
+import { buildResponseDataWithPagination } from 'src/utils';
 
 @Injectable()
 export class AdminService {
@@ -176,19 +177,25 @@ export class AdminService {
         ? { createdAt: LessThanOrEqual(filter?.endDate) }
         : {}),
     };
-    return this.storeRepository.find({
-      where: [
-        {
-          ...baseConditions,
-          ...(search ? { storeName: Like(`%${search}%`) } : {}),
-        },
-      ],
+    const allConditions = [
+      {
+        ...baseConditions,
+        ...(search ? { storeName: Like(`%${search}%`) } : {}),
+      },
+    ];
+    const totalStores = await this.storeRepository.countBy(allConditions);
+    const stores = await this.storeRepository.find({
+      where: allConditions,
       order: {
         [pagination.orderBy || 'createdAt']:
           pagination.orderDir || OrderDir.DESC,
       },
       skip: limit * (page - 1),
       take: limit,
+    });
+    return buildResponseDataWithPagination(stores, totalStores, {
+      page,
+      limit,
     });
   }
 
@@ -206,27 +213,33 @@ export class AdminService {
         ? { createdAt: LessThanOrEqual(filter?.endDate) }
         : {}),
     };
-    return this.customerRepository.find({
-      where: [
-        {
-          ...baseConditions,
-          ...(search ? { fullName: Like(`%${search}%`) } : {}),
-        },
-        {
-          ...baseConditions,
-          ...(search ? { phone: Like(`%${search}%`) } : {}),
-        },
-        {
-          ...baseConditions,
-          ...(search ? { email: Like(`%${search}%`) } : {}),
-        },
-      ],
+    const allConditions = [
+      {
+        ...baseConditions,
+        ...(search ? { fullName: Like(`%${search}%`) } : {}),
+      },
+      {
+        ...baseConditions,
+        ...(search ? { phone: Like(`%${search}%`) } : {}),
+      },
+      {
+        ...baseConditions,
+        ...(search ? { email: Like(`%${search}%`) } : {}),
+      },
+    ];
+    const totalCustomers = await this.customerRepository.countBy(allConditions);
+    const customers = await this.customerRepository.find({
+      where: allConditions,
       order: {
         [pagination.orderBy || 'createdAt']:
           pagination.orderDir || OrderDir.DESC,
       },
       skip: limit * (page - 1),
       take: limit,
+    });
+    return buildResponseDataWithPagination(customers, totalCustomers, {
+      page,
+      limit,
     });
   }
 

@@ -61,6 +61,10 @@ export enum OrderStatus {
   CANCELED = 'CANCELED',
 }
 
+export enum PaymentProviderType {
+  MONNIFY = 'MONNIFY'
+}
+
 export interface IAdminAuthContext {
   name: string;
   email: string;
