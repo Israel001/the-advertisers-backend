@@ -170,20 +170,20 @@ export class UsersService {
       }
     }
     const hashedPassword = await bcrypt.hash(user.password, 12);
-    const pinId = nanoid();
-    const otp = generateOtp();
-    await this.sharedService.sendOtp(otp, {
-      templateCode: 'signup_otp',
-      subject: 'Account OTP Verification',
-      data: {
-        firstname: user.fullName.split(' ')[0],
-        otp,
-        year: new Date().getFullYear(),
-      },
-      to: user.email,
-    });
-    const otpModel = this.otpRepository.create({ otp, pinId });
-    this.otpRepository.save(otpModel);
+    // const pinId = nanoid();
+    // const otp = generateOtp();
+    // await this.sharedService.sendOtp(otp, {
+    //   templateCode: 'signup_otp',
+    //   subject: 'Account OTP Verification',
+    //   data: {
+    //     firstname: user.fullName.split(' ')[0],
+    //     otp,
+    //     year: new Date().getFullYear(),
+    //   },
+    //   to: user.email,
+    // });
+    // const otpModel = this.otpRepository.create({ otp, pinId });
+    // this.otpRepository.save(otpModel);
     const lga = await this.lgaRepository.findOne({ where: { id: user.lgaId } });
     const state = await this.stateRepository.findOne({
       where: { id: user.stateId },
@@ -198,14 +198,15 @@ export class UsersService {
       landmark: user.landmark,
       password: hashedPassword,
       type: UserType.CUSTOMER,
-      verified: false,
+      verified: true, // should be false but set to true for now
       houseNo: user.houseNo,
       address: `${user.houseNo}, ${user.street}, ${
         user.landmark ? `${user.landmark},` : ''
       } ${lga.name}, ${state.name}`,
     });
-    const userInDB = await this.customerRepository.save(userModel);
-    return { pinId, id: userInDB.id };
+    return this.customerRepository.save(userModel);
+    // const userInDB = await this.customerRepository.save(userModel);
+    // return { pinId, id: userInDB.id };
   }
 
   async findByEmailOrPhone(

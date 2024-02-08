@@ -51,6 +51,10 @@ export class Products extends BaseEntity {
   @AutoMap()
   description: string;
 
+  @Column()
+  @AutoMap()
+  brand: string;
+
   @Column({ default: 0 })
   @AutoMap()
   avgRating: number;

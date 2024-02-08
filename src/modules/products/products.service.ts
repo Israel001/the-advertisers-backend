@@ -105,6 +105,7 @@ export class ProductsService {
           dirname(__dirname),
           '..',
           '..',
+          '..',
           'images',
           productExists.featuredImage,
         ),
