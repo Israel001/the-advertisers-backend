@@ -1,8 +1,8 @@
 import { AutoMap } from '@automapper/classes';
 import { BaseEntity } from 'src/base/entity';
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, DeleteDateColumn, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 
-@Entity('main_categories')
+@Entity('main_categories', { synchronize: false })
 export class MainCategory extends BaseEntity {
   @PrimaryGeneratedColumn()
   @AutoMap()
@@ -19,9 +19,12 @@ export class MainCategory extends BaseEntity {
   @Column({ nullable: true })
   @AutoMap()
   featuredImage: string;
+
+  @DeleteDateColumn()
+  deletedAt?: Date;
 }
 
-@Entity('sub_categories')
+@Entity('sub_categories', { synchronize: false })
 export class SubCategory extends BaseEntity {
   @PrimaryGeneratedColumn()
   @AutoMap()
@@ -42,4 +45,7 @@ export class SubCategory extends BaseEntity {
   @ManyToOne(() => MainCategory)
   @AutoMap()
   mainCategory: MainCategory;
+
+  @DeleteDateColumn()
+  deletedAt?: Date;
 }

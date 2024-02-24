@@ -30,6 +30,8 @@ import { OrderQuery } from '../order/order.dto';
 import { OrderService } from '../order/order.service';
 import { OrderStatus } from 'src/types';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { CategoryService } from '../category/category.service';
+import { CreateCategoryDto, UpdateCategoryDto } from '../category/category.dto';
 
 @Controller('/admin')
 @ApiTags('admin')
@@ -40,11 +42,167 @@ export class AdminController {
     private readonly service: AdminService,
     private readonly productService: ProductsService,
     private readonly orderService: OrderService,
+    private readonly categoryService: CategoryService,
   ) {}
 
   @Get()
   getHello(): string {
     return 'Welcome to The-Advertisers Admin!!!';
+  }
+
+  @Post('category/:id/subCategory')
+  @UseInterceptors(
+    FileFieldsInterceptor([{ name: 'featuredImage', maxCount: 1 }], {
+      limits: { fileSize: 10 * 1024 * 1024 }, // 10MB
+      fileFilter: (_req, file, cb) =>
+        file.mimetype.includes('image')
+          ? cb(null, true)
+          : cb(new BadRequestException('Only images are allowed'), false),
+      storage: diskStorage({
+        destination: './images/',
+        filename: (_req, file, cb) =>
+          cb(
+            null,
+            `${nanoid()}.${
+              file.originalname.split('.')[
+                file.originalname.split('.').length - 1
+              ]
+            }`,
+          ),
+      }),
+    }),
+    new ImageInterceptor(),
+  )
+  createSubCategory(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() body: CreateCategoryDto,
+  ) {
+    return this.categoryService.createSubCategory(id, body);
+  }
+
+  @Put(':id')
+  @UseInterceptors(
+    FileFieldsInterceptor([{ name: 'featuredImage', maxCount: 1 }], {
+      limits: { fileSize: 10 * 1024 * 1024 }, // 10MB
+      fileFilter: (_req, file, cb) =>
+        file.mimetype.includes('image')
+          ? cb(null, true)
+          : cb(new BadRequestException('Only images are allowed'), false),
+      storage: diskStorage({
+        destination: './images/',
+        filename: (_req, file, cb) =>
+          cb(
+            null,
+            `${nanoid()}.${
+              file.originalname.split('.')[
+                file.originalname.split('.').length - 1
+              ]
+            }`,
+          ),
+      }),
+    }),
+    new ImageInterceptor(),
+  )
+  updateSubCategory(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() body: UpdateCategoryDto,
+  ) {
+    return this.categoryService.updateSubCategory(id, body);
+  }
+
+  @Post('/main-category')
+  @UseInterceptors(
+    FileFieldsInterceptor([{ name: 'featuredImage', maxCount: 1 }], {
+      limits: { fileSize: 10 * 1024 * 1024 }, // 10MB
+      fileFilter: (_req, file, cb) =>
+        file.mimetype.includes('image')
+          ? cb(null, true)
+          : cb(new BadRequestException('Only images are allowed'), false),
+      storage: diskStorage({
+        destination: './images/',
+        filename: (_req, file, cb) =>
+          cb(
+            null,
+            `${nanoid()}.${
+              file.originalname.split('.')[
+                file.originalname.split('.').length - 1
+              ]
+            }`,
+          ),
+      }),
+    }),
+    new ImageInterceptor(),
+  )
+  createMainCategory(@Body() body: dtos.CreateMainCategoryDto) {
+    return this.service.createMainCategory(body);
+  }
+
+  @Put('/main-category/:id')
+  @UseInterceptors(
+    FileFieldsInterceptor([{ name: 'featuredImage', maxCount: 1 }], {
+      limits: { fileSize: 10 * 1024 * 1024 }, // 10MB
+      fileFilter: (_req, file, cb) =>
+        file.mimetype.includes('image')
+          ? cb(null, true)
+          : cb(new BadRequestException('Only images are allowed'), false),
+      storage: diskStorage({
+        destination: './images/',
+        filename: (_req, file, cb) =>
+          cb(
+            null,
+            `${nanoid()}.${
+              file.originalname.split('.')[
+                file.originalname.split('.').length - 1
+              ]
+            }`,
+          ),
+      }),
+    }),
+    new ImageInterceptor(),
+  )
+  updateMainCategory(
+    @Body() body: dtos.UpdateMainCategoryDto,
+    @Param('id', ParseIntPipe) id: number,
+  ) {
+    return this.service.updateMainCategory(body, id);
+  }
+
+  @Delete('/main-category/:id')
+  deleteMainCategory(@Param('id', ParseIntPipe) id: number) {
+    return this.service.deleteMainCategory(id);
+  }
+
+  @Get('/get-slider')
+  @AllowUnauthorizedRequest()
+  getSlider() {
+    return this.service.getSlider();
+  }
+
+  @Post('/upload-slider')
+  @UseInterceptors(
+    FileFieldsInterceptor([{ name: 'slider', maxCount: 1 }], {
+      limits: { fileSize: 10 * 1024 * 1024 }, // 10MB
+      fileFilter: (_req, file, cb) =>
+        file.mimetype.includes('image')
+          ? cb(null, true)
+          : cb(new BadRequestException('Only images are allowed'), false),
+      storage: diskStorage({
+        destination: './images/',
+        filename: (_req, file, cb) =>
+          cb(
+            null,
+            `${nanoid()}.${
+              file.originalname.split('.')[
+                file.originalname.split('.').length - 1
+              ]
+            }`,
+          ),
+      }),
+    }),
+    new ImageInterceptor(),
+  )
+  uploadSlider(@Body() { slider }: { slider: string }) {
+    return this.service.uploadSlider(slider);
   }
 
   @Post('/auth/login')

@@ -30,6 +30,22 @@ export class ProductsService {
     private readonly productRepository: Repository<Products>,
   ) {}
 
+  async fetchTopSellingProducts() {
+    return this.productRepository.query(
+      `SELECT * FROM products ORDER BY RAND() LIMIT 4`,
+    );
+  }
+
+  async fetchPopularSales() {
+    return this.productRepository.query(
+      `SELECT * FROM products ORDER BY RAND() LIMIT 3`,
+    );
+  }
+
+  async fetchRandomCategories() {
+    return this.productRepository.query(`SELECT * FROM sub_categories ORDER BY RAND() LIMIT 12`);
+  }
+
   async fetchProducts(
     pagination: PaginationInput,
     filter: ProductFilter,
@@ -61,6 +77,18 @@ export class ProductsService {
       {
         ...baseConditions,
         ...(search ? { description: Like(`%${search}%`) } : {}),
+      },
+      {
+        ...baseConditions,
+        ...(search ? { brand: Like(`%${search}%`) } : {}),
+      },
+      {
+        ...baseConditions,
+        ...(search ? { category: { name: Like(`%${search}%`) } } : {}),
+      },
+      {
+        ...baseConditions,
+        ...(search ? { mainCategory: { name: Like(`%${search}%`) } } : {}),
       },
     ];
     const totalProducts = await this.productRepository.countBy(allConditions);

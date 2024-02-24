@@ -47,3 +47,21 @@ export const buildResponseDataWithPagination = <T>(
     },
   };
 };
+
+export const camelCaseKeysToUnderscore = (obj: object) => {
+  if (typeof obj != 'object') return obj;
+  for (const oldName in obj) {
+    const newName = oldName.replace(/([A-Z])/g, ($1) => `_${$1.toLowerCase()}`);
+    if (newName != oldName) {
+      if (obj.hasOwnProperty(oldName)) {
+        obj[newName] = obj[oldName];
+        delete obj[oldName];
+      }
+    }
+    if (typeof obj[newName] == 'object') {
+      obj[newName] = camelCaseKeysToUnderscore(obj[newName]);
+    }
+  }
+  console.log(obj);
+  return obj;
+};

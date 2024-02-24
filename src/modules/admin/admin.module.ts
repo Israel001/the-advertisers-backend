@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { AdminUser } from './admin.entities';
+import { AdminUser, Slider } from './admin.entities';
 import { PassportModule } from '@nestjs/passport';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { JwtAuthConfiguration } from 'src/config/configuration';
@@ -15,6 +15,8 @@ import { ProductsModule } from '../products/products.module';
 import { OrderModule } from '../order/order.module';
 import { Products } from '../products/products.entity';
 import { Order } from '../order/order.entity';
+import { MainCategory, SubCategory } from '../category/category.entity';
+import { CategoryModule } from '../category/category.module';
 
 @Module({
   imports: [
@@ -25,6 +27,9 @@ import { Order } from '../order/order.entity';
       StoreUsers,
       Products,
       Order,
+      Slider,
+      MainCategory,
+      SubCategory,
     ]),
     PassportModule,
     ConfigModule.forRoot({ load: [JwtAuthConfiguration] }),
@@ -38,6 +43,7 @@ import { Order } from '../order/order.entity';
     }),
     ProductsModule,
     OrderModule,
+    CategoryModule
   ],
   providers: [AdminService, AdminLocalStrategy, AdminJwtStrategy],
   controllers: [AdminController],

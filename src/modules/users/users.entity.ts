@@ -200,7 +200,7 @@ export class StoreUsers extends BaseEntity {
   deletedAt?: Date;
 }
 
-@Entity('wishlist', { synchronize: true })
+@Entity('wishlist', { synchronize: false })
 export class Wishlist extends BaseEntity {
   @PrimaryGeneratedColumn()
   @AutoMap()

@@ -8,8 +8,9 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { Store, StoreUsers } from '../users/users.entity';
+import { MainCategory, SubCategory } from '../category/category.entity';
 
-@Entity('products', { synchronize: true })
+@Entity('products', { synchronize: false })
 export class Products extends BaseEntity {
   @PrimaryGeneratedColumn()
   @AutoMap()
@@ -74,6 +75,14 @@ export class Products extends BaseEntity {
   @ManyToOne(() => StoreUsers)
   @AutoMap()
   lastUpdatedBy: StoreUsers;
+
+  @ManyToOne(() => SubCategory)
+  @AutoMap()
+  category: SubCategory;
+
+  @ManyToOne(() => MainCategory)
+  @AutoMap()
+  mainCategory: MainCategory;
 
   @DeleteDateColumn()
   deletedAt?: Date;

@@ -27,30 +27,25 @@ export class CategoryController {
   @Post(':id/subCategory')
   @UseGuards(JwtAuthGuard, StoreGuard)
   @UseInterceptors(
-    FileFieldsInterceptor(
-      [
-        { name: 'featuredImage', maxCount: 1 },
-      ],
-      {
-        limits: { fileSize: 10 * 1024 * 1024 }, // 10MB
-        fileFilter: (_req, file, cb) =>
-          file.mimetype.includes('image')
-            ? cb(null, true)
-            : cb(new BadRequestException('Only images are allowed'), false),
-        storage: diskStorage({
-          destination: './images/',
-          filename: (_req, file, cb) =>
-            cb(
-              null,
-              `${nanoid()}.${
-                file.originalname.split('.')[
-                  file.originalname.split('.').length - 1
-                ]
-              }`,
-            ),
-        }),
-      },
-    ),
+    FileFieldsInterceptor([{ name: 'featuredImage', maxCount: 1 }], {
+      limits: { fileSize: 10 * 1024 * 1024 }, // 10MB
+      fileFilter: (_req, file, cb) =>
+        file.mimetype.includes('image')
+          ? cb(null, true)
+          : cb(new BadRequestException('Only images are allowed'), false),
+      storage: diskStorage({
+        destination: './images/',
+        filename: (_req, file, cb) =>
+          cb(
+            null,
+            `${nanoid()}.${
+              file.originalname.split('.')[
+                file.originalname.split('.').length - 1
+              ]
+            }`,
+          ),
+      }),
+    }),
     new ImageInterceptor(),
   )
   createSubCategory(
@@ -74,6 +69,29 @@ export class CategoryController {
   }
 
   @Put(':id')
+  @UseGuards(JwtAuthGuard, StoreGuard)
+  @UseInterceptors(
+    FileFieldsInterceptor([{ name: 'featuredImage', maxCount: 1 }], {
+      limits: { fileSize: 10 * 1024 * 1024 }, // 10MB
+      fileFilter: (_req, file, cb) =>
+        file.mimetype.includes('image')
+          ? cb(null, true)
+          : cb(new BadRequestException('Only images are allowed'), false),
+      storage: diskStorage({
+        destination: './images/',
+        filename: (_req, file, cb) =>
+          cb(
+            null,
+            `${nanoid()}.${
+              file.originalname.split('.')[
+                file.originalname.split('.').length - 1
+              ]
+            }`,
+          ),
+      }),
+    }),
+    new ImageInterceptor(),
+  )
   updateSubCategory(
     @Param('id', ParseIntPipe) id: number,
     @Body() body: UpdateCategoryDto,

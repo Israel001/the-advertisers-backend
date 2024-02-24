@@ -1,21 +1,35 @@
 import {
+  ConflictException,
   Injectable,
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
-import { AdminUser } from './admin.entities';
+import { AdminUser, Slider } from './admin.entities';
 import { IAdminAuthContext, OrderDir, OrderStatus } from 'src/types';
 import { InjectRepository } from '@nestjs/typeorm';
-import { LessThanOrEqual, Like, MoreThanOrEqual, Repository } from 'typeorm';
+import {
+  LessThanOrEqual,
+  Like,
+  MoreThanOrEqual,
+  Not,
+  Repository,
+} from 'typeorm';
 import { JwtService } from '@nestjs/jwt';
 import bcrypt from 'bcryptjs';
 import { PaginationInput } from 'src/base/dto';
-import { CustomerFilter } from './dto';
+import {
+  CreateMainCategoryDto,
+  CustomerFilter,
+  UpdateMainCategoryDto,
+} from './dto';
 import { Customer, Store, StoreUsers } from '../users/users.entity';
 import { UpdateCustomerDto, UpdateStoreDto } from '../users/users.dto';
 import { Products } from '../products/products.entity';
 import { Order } from '../order/order.entity';
 import { buildResponseDataWithPagination } from 'src/utils';
+import fs from 'fs';
+import path, { dirname } from 'path';
+import { MainCategory, SubCategory } from '../category/category.entity';
 
 @Injectable()
 export class AdminService {
@@ -32,8 +46,132 @@ export class AdminService {
     private readonly productsRepository: Repository<Products>,
     @InjectRepository(Order)
     private readonly orderRepository: Repository<Order>,
+    @InjectRepository(Slider)
+    private readonly sliderRepository: Repository<Slider>,
+    @InjectRepository(MainCategory)
+    private readonly mainCategoryRepository: Repository<MainCategory>,
+    @InjectRepository(SubCategory)
+    private readonly subCategoryRepository: Repository<SubCategory>,
     private readonly jwtService: JwtService,
   ) {}
+
+  async getSlider() {
+    const latestSlider = await this.sliderRepository.findOne({
+      where: {},
+      order: { id: 'DESC' },
+    });
+    return latestSlider.image;
+  }
+
+  async createMainCategory(category: CreateMainCategoryDto) {
+    const duplicateExists = await this.mainCategoryRepository.findOneBy({
+      name: category.name,
+    });
+    if (duplicateExists)
+      throw new ConflictException(
+        `Category with name: ${category.name} already exists`,
+      );
+    const catModel = this.mainCategoryRepository.create({ ...category });
+    return this.mainCategoryRepository.save(catModel);
+  }
+
+  async deleteMainCategory(id: number) {
+    const categoryExists = await this.mainCategoryRepository.findOneBy({ id });
+    if (!categoryExists) throw new NotFoundException('Category does not exist');
+    if (categoryExists.featuredImage) {
+      fs.unlinkSync(
+        path.join(
+          dirname(__dirname),
+          '..',
+          '..',
+          '..',
+          'images',
+          categoryExists.featuredImage,
+        ),
+      );
+    }
+    const catModel = this.mainCategoryRepository.create({
+      id,
+      deletedAt: new Date(),
+    });
+    return this.mainCategoryRepository.save(catModel);
+  }
+
+  async deleteSubCategory(id: number) {
+    const categoryExists = await this.subCategoryRepository.findOneBy({ id });
+    if (!categoryExists) throw new NotFoundException('Category does not exist');
+    if (categoryExists.featuredImage) {
+      fs.unlinkSync(
+        path.join(
+          dirname(__dirname),
+          '..',
+          '..',
+          '..',
+          'images',
+          categoryExists.featuredImage,
+        ),
+      );
+    }
+    const catModel = this.subCategoryRepository.create({
+      id,
+      deletedAt: new Date(),
+    });
+    return this.subCategoryRepository.save(catModel);
+  }
+
+  async updateMainCategory(category: UpdateMainCategoryDto, id: number) {
+    const categoryExists = await this.mainCategoryRepository.findOneBy({ id });
+    if (!categoryExists) throw new NotFoundException('Category does not exist');
+    const duplicateExists = await this.mainCategoryRepository.findOneBy({
+      id: Not(id),
+      name: category.name,
+    });
+    if (duplicateExists)
+      throw new ConflictException(
+        `Category with name: ${category.name} already exists`,
+      );
+    if (
+      category.featuredImage &&
+      category.featuredImage !== categoryExists.featuredImage
+    ) {
+      fs.unlinkSync(
+        path.join(
+          dirname(__dirname),
+          '..',
+          '..',
+          '..',
+          'images',
+          categoryExists.featuredImage,
+        ),
+      );
+    }
+    const catModel = this.mainCategoryRepository.create({ id, ...category });
+    return this.mainCategoryRepository.save(catModel);
+  }
+
+  async uploadSlider(slider: string) {
+    const latestSlider = await this.sliderRepository.findOne({
+      where: {},
+      order: { id: 'DESC' },
+    });
+    if (latestSlider && latestSlider?.image && latestSlider?.image !== slider) {
+      fs.unlinkSync(
+        path.join(
+          dirname(__dirname),
+          '..',
+          '..',
+          '..',
+          'images',
+          latestSlider.image,
+        ),
+      );
+    }
+    const sliderModel = this.sliderRepository.create({
+      ...(latestSlider ? { id: latestSlider.id } : {}),
+      image: slider,
+    });
+    return this.sliderRepository.save(sliderModel);
+  }
 
   async updateOrderStatus(id: number, status: OrderStatus) {
     const order = await this.orderRepository.findOneBy({ id });

@@ -4,7 +4,7 @@ import { Currencies, OrderStatus, PaymentType } from 'src/types';
 import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 import { Customer } from '../users/users.entity';
 
-@Entity('payments', { synchronize: true })
+@Entity('payments', { synchronize: false })
 export class Payment extends BaseEntity {
   @PrimaryGeneratedColumn()
   @AutoMap()
@@ -39,7 +39,7 @@ export class Payment extends BaseEntity {
   currencies: Currencies;
 }
 
-@Entity('orders', { synchronize: true })
+@Entity('orders', { synchronize: false })
 export class Order extends BaseEntity {
   @PrimaryGeneratedColumn()
   @AutoMap()

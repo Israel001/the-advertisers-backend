@@ -11,6 +11,29 @@ export class AdminLoginDTO {
   password: string;
 }
 
+export class CreateMainCategoryDto {
+  @IsString()
+  name: string;
+
+  @IsString()
+  description: string;
+
+  featuredImage: string;
+}
+
+export class UpdateMainCategoryDto {
+  @IsString()
+  @IsOptional()
+  name: string;
+
+  @IsString()
+  @IsOptional()
+  description: string;
+
+  @IsOptional()
+  featuredImage: string;
+}
+
 export class CustomerFilter {
   @IsOptional()
   @IsValidDate()
