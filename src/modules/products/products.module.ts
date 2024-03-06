@@ -7,10 +7,11 @@ import { JwtModule } from "@nestjs/jwt";
 import { JwtAuthConfig } from "src/config/types/jwt-auth.config";
 import { ProductsController } from "./products.controller";
 import { ProductsService } from "./products.service";
+import { MainCategory, SubCategory } from "../category/category.entity";
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Products]),
+    TypeOrmModule.forFeature([Products, MainCategory, SubCategory]),
     ConfigModule.forRoot({
       load: [JwtAuthConfiguration],
     }),

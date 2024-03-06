@@ -22,12 +22,17 @@ import { PaginationInput } from 'src/base/dto';
 import fs from 'fs';
 import path, { dirname } from 'path';
 import { buildResponseDataWithPagination } from 'src/utils';
+import { MainCategory, SubCategory } from '../category/category.entity';
 
 @Injectable()
 export class ProductsService {
   constructor(
     @InjectRepository(Products)
     private readonly productRepository: Repository<Products>,
+    @InjectRepository(SubCategory)
+    private readonly subCategoryRepository: Repository<SubCategory>,
+    @InjectRepository(MainCategory)
+    private readonly mainCategoryRepository: Repository<MainCategory>,
   ) {}
 
   async fetchTopSellingProducts() {
@@ -43,7 +48,29 @@ export class ProductsService {
   }
 
   async fetchRandomCategories() {
-    return this.productRepository.query(`SELECT * FROM sub_categories ORDER BY RAND() LIMIT 12`);
+    return this.productRepository.query(
+      `SELECT * FROM sub_categories ORDER BY RAND() LIMIT 12`,
+    );
+  }
+
+  async fetchProductById(id: number) {
+    const product = await this.productRepository.findOne({
+      where: { id },
+      relations: ['category', 'mainCategory', 'store'],
+    });
+    const totalProductInStore = await this.productRepository.countBy({
+      store: { id: product.store.id },
+    });
+    product['totalProductInStore'] = totalProductInStore;
+    const otherProducts = await this.productRepository.query(
+      `SELECT * FROM products ORDER BY RAND() LIMIT 8`,
+    );
+    const relatedProducts = await this.productRepository.query(
+      `SELECT * FROM products ORDER BY RAND() LIMIT 4`,
+    );
+    product['otherProducts'] = otherProducts;
+    product['relatedProducts'] = relatedProducts;
+    return product;
   }
 
   async fetchProducts(
@@ -164,8 +191,20 @@ export class ProductsService {
     });
     if (productExists)
       throw new BadRequestException('Product name cannot be duplicate');
+    const subCategoryExists = await this.subCategoryRepository.findOneBy({
+      id: product.categoryId,
+    });
+    if (!subCategoryExists)
+      throw new NotFoundException('Sub category does not exist');
+    const mainCategoryExists = await this.mainCategoryRepository.findOneBy({
+      id: product.mainCategoryId,
+    });
+    if (!mainCategoryExists)
+      throw new NotFoundException('Main category does not exist');
     const productModel = this.productRepository.create({
       ...product,
+      category: { id: product.categoryId },
+      mainCategory: { id: product.mainCategoryId },
       store: store,
       createdBy: { id: userId },
     });

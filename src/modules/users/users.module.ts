@@ -1,6 +1,14 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { Customer, OTP, Roles, Store, StoreUsers, Wishlist } from './users.entity';
+import {
+  Cart,
+  Customer,
+  OTP,
+  Roles,
+  Store,
+  StoreUsers,
+  Wishlist,
+} from './users.entity';
 import { Lga } from 'src/entities/lga.entity';
 import { State } from 'src/entities/state.entity';
 import { ConfigModule, ConfigService } from '@nestjs/config';
@@ -21,7 +29,8 @@ import { UsersService } from './users.service';
       Roles,
       Lga,
       State,
-      Wishlist
+      Wishlist,
+      Cart,
     ]),
     ConfigModule.forRoot({
       load: [JwtAuthConfiguration],

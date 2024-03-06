@@ -214,3 +214,18 @@ export class Wishlist extends BaseEntity {
   @AutoMap()
   customer: Customer;
 }
+
+@Entity('cart', { synchronize: false })
+export class Cart extends BaseEntity {
+  @PrimaryGeneratedColumn()
+  @AutoMap()
+  id: number;
+
+  @Column('longtext')
+  @AutoMap()
+  data: string;
+
+  @ManyToOne(() => Customer)
+  @AutoMap()
+  customer: Customer;
+}

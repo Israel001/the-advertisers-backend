@@ -19,8 +19,11 @@ import { diskStorage } from 'multer';
 import { nanoid } from 'nanoid';
 import { FileFieldsInterceptor } from '@nestjs/platform-express';
 import { ImageInterceptor } from 'src/lib/image.interceptor';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
 @Controller('category')
+@ApiTags('categories')
+@ApiBearerAuth()
 export class CategoryController {
   constructor(private service: CategoryService) {}
 

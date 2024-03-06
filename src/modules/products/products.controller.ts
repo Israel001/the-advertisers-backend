@@ -35,8 +35,8 @@ import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
 @ApiTags('products')
 @ApiBearerAuth()
 export class ProductsController {
-  constructor(private readonly productsService: ProductsService) { }
-  
+  constructor(private readonly productsService: ProductsService) {}
+
   @Get('/top-selling')
   fetchTopSellingProducts() {
     return this.productsService.fetchTopSellingProducts();
@@ -46,7 +46,7 @@ export class ProductsController {
   fetchPopularSales() {
     return this.productsService.fetchPopularSales();
   }
-  
+
   @Get('/random-categories')
   fetchRandomCategories() {
     return this.productsService.fetchRandomCategories();
@@ -59,6 +59,11 @@ export class ProductsController {
       query.filter,
       query.search,
     );
+  }
+
+  @Get(':id')
+  fetchById(@Param('id', ParseIntPipe) id: number) {
+    return this.productsService.fetchProductById(id);
   }
 
   @Get('store-products')

@@ -108,4 +108,13 @@ export class UsersController {
   ) {
     return this.usersService.saveWishlist(wishlistData, request.user as any);
   }
+
+  @Post('save-cart')
+  @UseGuards(JwtAuthGuard)
+  saveCart(
+    @Body('cartData') cartData: string,
+    @Req() request: Request,
+  ) {
+    return this.usersService.saveCart(cartData, request.user as any);
+  }
 }

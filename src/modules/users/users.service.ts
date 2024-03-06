@@ -6,6 +6,7 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import {
+  Cart,
   Customer,
   OTP,
   Roles,
@@ -45,6 +46,8 @@ export class UsersService {
     private readonly stateRepository: Repository<State>,
     @InjectRepository(Wishlist)
     private readonly wishlistRepository: Repository<Wishlist>,
+    @InjectRepository(Cart)
+    private readonly cartRepository: Repository<Cart>,
     private readonly sharedService: SharedService,
   ) {}
 
@@ -116,20 +119,20 @@ export class UsersService {
         user.landmark ? user.landmark : ''
       }, ${lga.name}, ${state.name}`,
     });
-    const pinId = nanoid();
-    const otp = generateOtp();
-    await this.sharedService.sendOtp(otp, {
-      templateCode: 'signup_otp',
-      subject: 'Account OTP Verification',
-      data: {
-        firstname: user.contactName.split(' ')[0],
-        otp,
-        year: new Date().getFullYear(),
-      },
-      to: user.contactEmail,
-    });
-    const otpModel = this.otpRepository.create({ otp, pinId });
-    this.otpRepository.save(otpModel);
+    // const pinId = nanoid();
+    // const otp = generateOtp();
+    // await this.sharedService.sendOtp(otp, {
+    //   templateCode: 'signup_otp',
+    //   subject: 'Account OTP Verification',
+    //   data: {
+    //     firstname: user.contactName.split(' ')[0],
+    //     otp,
+    //     year: new Date().getFullYear(),
+    //   },
+    //   to: user.contactEmail,
+    // });
+    // const otpModel = this.otpRepository.create({ otp, pinId });
+    // this.otpRepository.save(otpModel);
     const store = await this.storeRepository.save(storeModel);
     const ownerRole = await this.roleRepository.findOne({
       where: { name: UserRoles.Owner },
@@ -140,13 +143,13 @@ export class UsersService {
       email: user.contactEmail,
       password: hashedPassword,
       type: UserType.STORE,
-      verified: false,
+      verified: true,
       invited: false,
       store: { id: store.id },
       role: { id: ownerRole.id },
     });
-    const userInDB = await this.storeUserRepository.save(userModel);
-    return { pinId, id: userInDB.id };
+    return this.storeUserRepository.save(userModel);
+    // return { pinId, id: userInDB.id };
   }
 
   async createCustomer(user: CreateCustomerDto) {
@@ -243,9 +246,21 @@ export class UsersService {
   }
 
   async getUserDetails({ userId, type }: IAuthContext) {
-    return type === UserType.CUSTOMER
-      ? this.customerRepository.findOneBy({ id: userId })
-      : this.storeUserRepository.findOneBy({ id: userId });
+    const userInDB =
+      type === UserType.CUSTOMER
+        ? await this.customerRepository.findOneBy({ id: userId })
+        : await this.storeUserRepository.findOneBy({ id: userId });
+    if (type === UserType.CUSTOMER) {
+      const userCart = await this.cartRepository.findOneBy({
+        customer: { id: userId },
+      });
+      const userWishlist = await this.wishlistRepository.findOneBy({
+        customer: { id: userId },
+      });
+      userInDB['cart'] = userCart ? JSON.parse(userCart.data) : [];
+      userInDB['wishlist'] = userWishlist ? JSON.parse(userWishlist.data) : [];
+    }
+    return userInDB;
   }
 
   async inviteUser(user: InviteUserDto, { store }: IAuthContext) {
@@ -389,10 +404,26 @@ export class UsersService {
   }
 
   async saveWishlist(wishlistData: string, { userId }: IAuthContext) {
+    const wishlistExists = await this.wishlistRepository.findOneBy({
+      customer: { id: userId },
+    });
     const wishlistModel = this.wishlistRepository.create({
+      ...(wishlistExists ? { id: wishlistExists.id } : {}),
       data: wishlistData,
       customer: { id: userId },
     });
     return this.wishlistRepository.save(wishlistModel);
+  }
+
+  async saveCart(cartData: string, { userId }: IAuthContext) {
+    const cartExists = await this.cartRepository.findOneBy({
+      customer: { id: userId },
+    });
+    const cartModel = this.cartRepository.create({
+      ...(cartExists ? { id: cartExists.id } : {}),
+      data: cartData,
+      customer: { id: userId },
+    });
+    return this.cartRepository.save(cartModel);
   }
 }

@@ -85,6 +85,21 @@ export class CreateProductDto {
   @IsString()
   @IsOptional()
   attributes: string;
+
+  @IsNumber()
+  @Transform(({ value }) => parseInt(value))
+  categoryId: number;
+
+  @IsNumber()
+  @Transform(({ value }) => parseInt(value))
+  mainCategoryId: number;
+
+  @IsString()
+  brand: string;
+
+  featuredImage: string;
+
+  images: string;
 }
 
 export class UpdateProductDto {

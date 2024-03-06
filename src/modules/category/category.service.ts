@@ -40,7 +40,10 @@ export class CategoryService {
       throw new ConflictException(
         `Category with name: ${category.name} already exists`,
       );
-    const categoryModel = this.subCategoryRepository.create({ ...category });
+    const categoryModel = this.subCategoryRepository.create({
+      ...category,
+      mainCategory: { id: mainCategoryId },
+    });
     return this.subCategoryRepository.save(categoryModel);
   }
 
