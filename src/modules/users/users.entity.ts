@@ -32,13 +32,35 @@ export class Customer extends BaseEntity {
   @AutoMap()
   password: string;
 
+  @Column({ length: 15, enum: UserType })
+  @AutoMap()
+  type: UserType;
+
+  @Column()
+  @AutoMap()
+  verified: boolean;
+
+  @Column({ default: null, nullable: true })
+  @AutoMap()
+  lastLoggedIn: Date;
+
+  @DeleteDateColumn()
+  deletedAt?: Date;
+}
+
+@Entity('addresses', { synchronize: false })
+export class Addresses extends BaseEntity {
+  @PrimaryGeneratedColumn()
+  @AutoMap()
+  id: number;
+
+  @ManyToOne(() => Customer)
+  @AutoMap()
+  customer: Customer;
+
   @ManyToOne(() => State, { eager: true })
   @AutoMap()
   state: State;
-
-  @ManyToOne(() => Lga, { eager: true })
-  @AutoMap()
-  lga: Lga;
 
   @Column()
   @AutoMap()
@@ -56,17 +78,9 @@ export class Customer extends BaseEntity {
   @AutoMap()
   address: string;
 
-  @Column({ length: 15, enum: UserType })
+  @Column({ default: false })
   @AutoMap()
-  type: UserType;
-
-  @Column()
-  @AutoMap()
-  verified: boolean;
-
-  @Column({ default: null, nullable: true })
-  @AutoMap()
-  lastLoggedIn: Date;
+  isMainAddress: boolean;
 
   @DeleteDateColumn()
   deletedAt?: Date;
@@ -105,15 +119,11 @@ export class Store extends BaseEntity {
   @AutoMap()
   state: State;
 
-  @ManyToOne(() => Lga, { eager: true })
-  @AutoMap()
-  lga: Lga;
-
-  @Column({ length: 50 })
+  @Column({ nullable: true })
   @AutoMap()
   street: string;
 
-  @Column({ length: 50 })
+  @Column({ nullable: true })
   @AutoMap()
   landmark: string;
 

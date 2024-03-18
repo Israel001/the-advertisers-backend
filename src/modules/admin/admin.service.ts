@@ -337,6 +337,51 @@ export class AdminService {
     });
   }
 
+  async fetchCategories(search: string) {
+    // const { page = 1, limit = 20 } = pagination;
+    const allConditions = search
+      ? [
+          {
+            ...(search ? { name: Like(`%${search}%`) } : {}),
+          },
+          {
+            ...(search ? { description: Like(`%${search}%`) } : {}),
+          },
+        ]
+      : {};
+    const categories = await this.subCategoryRepository.find({
+      where: allConditions,
+      order: {
+        createdAt: OrderDir.DESC,
+      },
+    });
+    return categories;
+  }
+
+  async fetchSubCategories(id: number) {
+    return this.subCategoryRepository.findBy({ mainCategory: { id } });
+  }
+
+  async fetchMainCategories(search: string) {
+    const allConditions = search
+      ? [
+          {
+            ...(search ? { name: Like(`%${search}%`) } : {}),
+          },
+          {
+            ...(search ? { description: Like(`%${search}%`) } : {}),
+          },
+        ]
+      : {};
+    const categories = await this.mainCategoryRepository.find({
+      where: allConditions,
+      order: {
+        createdAt: OrderDir.DESC,
+      },
+    });
+    return categories;
+  }
+
   async fetchCustomers(
     pagination: PaginationInput,
     filter: CustomerFilter,

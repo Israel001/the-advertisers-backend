@@ -2,14 +2,17 @@ import {
   BadRequestException,
   Injectable,
   NotFoundException,
+  UnauthorizedException,
 } from '@nestjs/common';
 import {
   CreateProductDto,
+  CreateReviewDto,
   ProductFilter,
   UpdateProductDto,
+  UpdateReviewDto,
 } from './products.dto';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Products } from './products.entity';
+import { Products, Reviews } from './products.entity';
 import {
   LessThanOrEqual,
   Like,
@@ -33,6 +36,8 @@ export class ProductsService {
     private readonly subCategoryRepository: Repository<SubCategory>,
     @InjectRepository(MainCategory)
     private readonly mainCategoryRepository: Repository<MainCategory>,
+    @InjectRepository(Reviews)
+    private readonly reviewRepository: Repository<Reviews>,
   ) {}
 
   async fetchTopSellingProducts() {
@@ -68,8 +73,12 @@ export class ProductsService {
     const relatedProducts = await this.productRepository.query(
       `SELECT * FROM products ORDER BY RAND() LIMIT 4`,
     );
+    const reviews = await this.reviewRepository.findOneBy({
+      product: { id },
+    });
     product['otherProducts'] = otherProducts;
     product['relatedProducts'] = relatedProducts;
+    product['reviews'] = reviews;
     return product;
   }
 
@@ -78,6 +87,7 @@ export class ProductsService {
     filter: ProductFilter,
     search: string,
     showUnpublishedProducts: boolean = false,
+    removePagination: boolean = false,
   ) {
     const { page = 1, limit = 20 } = pagination;
     const baseConditions = {
@@ -125,8 +135,7 @@ export class ProductsService {
         [pagination.orderBy || 'createdAt']:
           pagination.orderDir || OrderDir.DESC,
       },
-      skip: limit * (page - 1),
-      take: limit,
+      ...(removePagination ? {} : { skip: limit * (page - 1), take: limit }),
     });
     return buildResponseDataWithPagination(products, totalProducts, {
       page,
@@ -179,6 +188,49 @@ export class ProductsService {
       ...(userId ? { lastUpdatedBy: { id: userId } } : {}),
     });
     return this.productRepository.save(productModel);
+  }
+
+  async deleteReview(id: number, { userId }: IAuthContext) {
+    const reviewExists = await this.reviewRepository.findOneBy({ id });
+    if (!reviewExists) throw new NotFoundException('Review not found');
+    if (reviewExists.customer.id !== userId)
+      throw new UnauthorizedException(
+        'You are not authorized to delete this review',
+      );
+    await this.reviewRepository.softDelete({ id });
+  }
+
+  async updateReview(
+    id: number,
+    review: UpdateReviewDto,
+    { userId }: IAuthContext,
+  ) {
+    const reviewExists = await this.reviewRepository.findOneBy({ id });
+    if (!reviewExists) throw new NotFoundException('Review not found');
+    if (reviewExists.customer.id !== userId)
+      throw new UnauthorizedException(
+        'You are not authorized to edit this review',
+      );
+    const reviewModel = this.reviewRepository.create({
+      id,
+      ...review,
+    });
+    await this.reviewRepository.save(reviewModel);
+  }
+
+  async createReview(review: CreateReviewDto, { userId }: IAuthContext) {
+    const productExists = await this.productRepository.findOneBy({
+      id: review.productId,
+    });
+    if (!productExists) throw new NotFoundException('Product not found');
+    const reviewModel = this.reviewRepository.create({
+      product: { id: review.productId },
+      title: review.title,
+      description: review.description,
+      rating: review.rating,
+      customer: { id: userId },
+    });
+    await this.reviewRepository.save(reviewModel);
   }
 
   async createProduct(

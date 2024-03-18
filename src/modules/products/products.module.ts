@@ -1,17 +1,17 @@
-import { Module } from "@nestjs/common";
-import { TypeOrmModule } from "@nestjs/typeorm";
-import { Products } from "./products.entity";
-import { ConfigModule, ConfigService } from "@nestjs/config";
-import { JwtAuthConfiguration } from "src/config/configuration";
-import { JwtModule } from "@nestjs/jwt";
-import { JwtAuthConfig } from "src/config/types/jwt-auth.config";
-import { ProductsController } from "./products.controller";
-import { ProductsService } from "./products.service";
-import { MainCategory, SubCategory } from "../category/category.entity";
+import { Module } from '@nestjs/common';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { Products, Reviews } from './products.entity';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import { JwtAuthConfiguration } from 'src/config/configuration';
+import { JwtModule } from '@nestjs/jwt';
+import { JwtAuthConfig } from 'src/config/types/jwt-auth.config';
+import { ProductsController } from './products.controller';
+import { ProductsService } from './products.service';
+import { MainCategory, SubCategory } from '../category/category.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Products, MainCategory, SubCategory]),
+    TypeOrmModule.forFeature([Products, MainCategory, SubCategory, Reviews]),
     ConfigModule.forRoot({
       load: [JwtAuthConfiguration],
     }),
@@ -26,6 +26,6 @@ import { MainCategory, SubCategory } from "../category/category.entity";
   ],
   controllers: [ProductsController],
   providers: [ProductsService],
-  exports: [ProductsService]
+  exports: [ProductsService],
 })
 export class ProductsModule {}

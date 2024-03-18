@@ -45,6 +45,10 @@ export class Order extends BaseEntity {
   @AutoMap()
   id: number;
 
+  @Column()
+  @AutoMap()
+  reference: string;
+
   @ManyToOne(() => Customer)
   @AutoMap()
   customer: Customer;
@@ -53,7 +57,7 @@ export class Order extends BaseEntity {
   @AutoMap()
   details: string;
 
-  @ManyToOne(() => Payment)
+  @ManyToOne(() => Payment, { eager: true })
   @AutoMap()
   payment: Payment;
 

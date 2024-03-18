@@ -7,6 +7,24 @@ import {
   Length,
 } from 'class-validator';
 
+export class UpdateAddressDto {
+  @IsNumber()
+  @IsOptional()
+  stateId: number;
+
+  @IsString()
+  @IsOptional()
+  street: string;
+
+  @IsString()
+  @IsOptional()
+  houseNo: string;
+
+  @IsString()
+  @IsOptional()
+  landmark: string;
+}
+
 export class UpdateCustomerDto {
   @IsString()
   @Length(1, 150)
@@ -27,6 +45,22 @@ export class UpdateCustomerDto {
   lgaId: number;
 }
 
+export class CreateAddressDto {
+  @IsNumber()
+  stateId: number;
+
+  @IsString()
+  street: string;
+
+  @IsString()
+  @IsOptional()
+  houseNo: string;
+
+  @IsString()
+  @IsOptional()
+  landmark: string;
+}
+
 export class CreateCustomerDto {
   @IsString()
   @Length(1, 150)
@@ -42,13 +76,11 @@ export class CreateCustomerDto {
   @IsNumber()
   stateId: number;
 
-  @IsNumber()
-  lgaId: number;
-
   @IsString()
   street: string;
 
   @IsString()
+  @IsOptional()
   houseNo: string;
 
   @IsString()
@@ -84,12 +116,7 @@ export class UpdateStoreDto {
   @IsOptional()
   stateId: number;
 
-  @IsNumber()
-  @IsOptional()
-  lgaId: number;
-
   @IsString()
-  @Length(1, 50)
   @IsOptional()
   street: string;
 
@@ -98,7 +125,6 @@ export class UpdateStoreDto {
   houseNo: string;
 
   @IsString()
-  @Length(1, 50)
   @IsOptional()
   landmark: string;
 }
@@ -127,19 +153,16 @@ export class CreateStoreDto {
   @IsNumber()
   stateId: number;
 
-  @IsNumber()
-  lgaId: number;
-
   @IsString()
-  @Length(1, 50)
   street: string;
 
   @IsString()
-  houseNo: string;
+  @IsOptional()
+  houseNo?: string;
 
   @IsString()
-  @Length(1, 50)
-  landmark: string;
+  @IsOptional()
+  landmark?: string;
 }
 
 export class InviteUserDto {

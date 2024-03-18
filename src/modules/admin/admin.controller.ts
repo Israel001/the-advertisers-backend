@@ -20,7 +20,11 @@ import { AdminLocalAuthGuard } from './guards/local-auth-guard';
 import * as dtos from './dto';
 import { AdminService } from './admin.service';
 import { UpdateCustomerDto, UpdateStoreDto } from '../users/users.dto';
-import { ProductQuery, UpdateProductDto } from '../products/products.dto';
+import {
+  CreateProductDto,
+  ProductQuery,
+  UpdateProductDto,
+} from '../products/products.dto';
 import { ProductsService } from '../products/products.service';
 import { FileFieldsInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
@@ -28,10 +32,14 @@ import { nanoid } from 'nanoid';
 import { ImageInterceptor } from 'src/lib/image.interceptor';
 import { OrderQuery } from '../order/order.dto';
 import { OrderService } from '../order/order.service';
-import { OrderStatus } from 'src/types';
+import { IAuthContext, OrderStatus } from 'src/types';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { CategoryService } from '../category/category.service';
 import { CreateCategoryDto, UpdateCategoryDto } from '../category/category.dto';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Store, StoreUsers } from '../users/users.entity';
+import { Repository } from 'typeorm';
+import { UsersService } from '../users/users.service';
 
 @Controller('/admin')
 @ApiTags('admin')
@@ -43,6 +51,11 @@ export class AdminController {
     private readonly productService: ProductsService,
     private readonly orderService: OrderService,
     private readonly categoryService: CategoryService,
+    @InjectRepository(Store)
+    private readonly storeRepository: Repository<Store>,
+    @InjectRepository(StoreUsers)
+    private readonly storeUserRepository: Repository<StoreUsers>,
+    private readonly userService: UsersService,
   ) {}
 
   @Get()
@@ -172,6 +185,11 @@ export class AdminController {
     return this.service.deleteMainCategory(id);
   }
 
+  @Delete('/sub-category/:id')
+  deleteSubCategory(@Param('id', ParseIntPipe) id: number) {
+    return this.service.deleteSubCategory(id);
+  }
+
   @Get('/get-slider')
   @AllowUnauthorizedRequest()
   getSlider() {
@@ -221,6 +239,21 @@ export class AdminController {
     );
   }
 
+  @Get('/categories')
+  fetchCategories(@Query() query: dtos.GeneralQuery) {
+    return this.service.fetchCategories(query.search);
+  }
+
+  @Get('/main-categories')
+  fetchMainCategories(@Query() query: dtos.GeneralQuery) {
+    return this.service.fetchMainCategories(query.search);
+  }
+
+  @Get('/main-categories/:id/categories')
+  fetchSubCategories(@Param('id', ParseIntPipe) id: number) {
+    return this.service.fetchSubCategories(id);
+  }
+
   @Get('/stores')
   fetchStores(@Query() query: dtos.CustomerQuery) {
     return this.service.fetchStores(
@@ -236,6 +269,7 @@ export class AdminController {
       query.pagination,
       query.filter,
       query.search,
+      true,
       true,
     );
   }
@@ -256,6 +290,62 @@ export class AdminController {
     status: OrderStatus,
   ) {
     return this.service.updateOrderStatus(id, status);
+  }
+
+  @Post('/product')
+  @UseInterceptors(
+    FileFieldsInterceptor(
+      [
+        { name: 'featuredImage', maxCount: 1 },
+        { name: 'images', maxCount: 10 },
+      ],
+      {
+        limits: { fileSize: 1000000 * 1024 * 1024 }, // 100MB
+        fileFilter: (_req, file, cb) =>
+          file.mimetype.includes('image')
+            ? cb(null, true)
+            : cb(new BadRequestException('Only images are allowed'), false),
+        storage: diskStorage({
+          destination: './images/',
+          filename: (_req, file, cb) =>
+            cb(
+              null,
+              `${nanoid()}.${
+                file.originalname.split('.')[
+                  file.originalname.split('.').length - 1
+                ]
+              }`,
+            ),
+        }),
+      },
+    ),
+    new ImageInterceptor(),
+  )
+  async createProduct(@Body() body: CreateProductDto) {
+    const store = await this.storeRepository.findOneBy({
+      storeName: 'The Advertisers',
+    });
+    let storeUser: StoreUsers;
+    if (!store) {
+      storeUser = await this.userService.createStore({
+        storeName: 'The Advertisers',
+        contactName: 'Sunny Ikotun',
+        contactPhone: '07043863019',
+        contactEmail: 's.ikotun@the-advertisers.com',
+        password: 'Password1234#',
+        stateId: 1,
+        street: 'The Advertisers Street',
+      });
+    }
+    if (!storeUser) {
+      storeUser = await this.storeUserRepository.findOneBy({
+        store,
+      });
+    }
+    return this.productService.createProduct(body, {
+      store,
+      userId: storeUser.id,
+    } as IAuthContext);
   }
 
   @Put('/product/:id')

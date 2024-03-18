@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import {
+  Addresses,
   Cart,
   Customer,
   OTP,
@@ -18,6 +19,8 @@ import { JwtAuthConfig } from 'src/config/types/jwt-auth.config';
 import { SharedModule } from '../shared/shared.module';
 import { UsersController } from './users.controller';
 import { UsersService } from './users.service';
+import { Order } from '../order/order.entity';
+import { Reviews } from '../products/products.entity';
 
 @Module({
   imports: [
@@ -31,6 +34,9 @@ import { UsersService } from './users.service';
       State,
       Wishlist,
       Cart,
+      Order,
+      Addresses,
+      Reviews
     ]),
     ConfigModule.forRoot({
       load: [JwtAuthConfiguration],

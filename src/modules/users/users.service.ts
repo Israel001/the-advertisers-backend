@@ -3,9 +3,11 @@ import {
   ForbiddenException,
   Injectable,
   NotFoundException,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import {
+  Addresses,
   Cart,
   Customer,
   OTP,
@@ -22,13 +24,17 @@ import { nanoid } from 'nanoid';
 import { IAuthContext, UserRoles, UserType } from 'src/types';
 import * as bcrypt from 'bcryptjs';
 import {
+  CreateAddressDto,
   CreateCustomerDto,
   CreateStoreDto,
   InviteUserDto,
+  UpdateAddressDto,
   UpdateCustomerDto,
   UpdateStoreDto,
 } from './users.dto';
 import { generateOtp } from 'src/utils';
+import { Order } from '../order/order.entity';
+import { Reviews } from '../products/products.entity';
 
 @Injectable()
 export class UsersService {
@@ -40,7 +46,7 @@ export class UsersService {
     @InjectRepository(StoreUsers)
     private readonly storeUserRepository: Repository<StoreUsers>,
     @InjectRepository(Roles) private readonly roleRepository: Repository<Roles>,
-    @InjectRepository(OTP) private readonly otpRepository: Repository<OTP>,
+    // @InjectRepository(OTP) private readonly otpRepository: Repository<OTP>,
     @InjectRepository(Lga) private readonly lgaRepository: Repository<Lga>,
     @InjectRepository(State)
     private readonly stateRepository: Repository<State>,
@@ -48,6 +54,12 @@ export class UsersService {
     private readonly wishlistRepository: Repository<Wishlist>,
     @InjectRepository(Cart)
     private readonly cartRepository: Repository<Cart>,
+    @InjectRepository(Order)
+    private readonly orderRepository: Repository<Order>,
+    @InjectRepository(Addresses)
+    private readonly addressRepository: Repository<Addresses>,
+    @InjectRepository(Reviews)
+    private readonly reviewRepository: Repository<Reviews>,
     private readonly sharedService: SharedService,
   ) {}
 
@@ -101,7 +113,6 @@ export class UsersService {
       }
     }
     const hashedPassword = await bcrypt.hash(user.password, 12);
-    const lga = await this.lgaRepository.findOne({ where: { id: user.lgaId } });
     const state = await this.stateRepository.findOne({
       where: { id: user.stateId },
     });
@@ -111,13 +122,12 @@ export class UsersService {
       contactPhone: user.contactPhone,
       contactEmail: user.contactEmail,
       state: { id: user.stateId },
-      lga: { id: user.lgaId },
       street: user.street,
       landmark: user.landmark,
       houseNo: user.houseNo,
-      address: `${user.houseNo}, ${user.street}, ${
-        user.landmark ? user.landmark : ''
-      }, ${lga.name}, ${state.name}`,
+      address: `${user.houseNo ? `${user.houseNo},` : ''} ${user.street}, ${
+        user.landmark ? `${user.landmark},` : ''
+      } ${state.name}`,
     });
     // const pinId = nanoid();
     // const otp = generateOtp();
@@ -150,6 +160,57 @@ export class UsersService {
     });
     return this.storeUserRepository.save(userModel);
     // return { pinId, id: userInDB.id };
+  }
+
+  async deleteAddress(id: number, { userId }: IAuthContext) {
+    const addressExists = await this.addressRepository.findOneBy({ id });
+    if (!addressExists) throw new NotFoundException('Address not found');
+    if (addressExists.customer.id !== userId)
+      throw new UnauthorizedException('Not authorized to delete this address');
+    return this.addressRepository.softDelete({ id });
+  }
+
+  async updateAddress(
+    id: number,
+    address: UpdateAddressDto,
+    { userId }: IAuthContext,
+  ) {
+    const addressExists = await this.addressRepository.findOneBy({ id });
+    if (!addressExists) throw new NotFoundException('Address not found');
+    if (addressExists.customer.id !== userId)
+      throw new UnauthorizedException('Not authorized to update this address');
+    const state = await this.stateRepository.findOne({
+      where: { id: address.stateId },
+    });
+    const addressModel = this.addressRepository.create({
+      id,
+      ...address,
+      state: { id: address.stateId },
+      street: address.street,
+      landmark: address.landmark,
+      houseNo: address.houseNo,
+      address: `${address.houseNo ? `${address.houseNo}` : ''}, ${
+        address.street
+      }, ${address.landmark ? `${address.landmark},` : ''}, ${state.name}`,
+    });
+    await this.addressRepository.save(addressModel);
+  }
+
+  async createNewAddress(address: CreateAddressDto, { userId }: IAuthContext) {
+    const state = await this.stateRepository.findOne({
+      where: { id: address.stateId },
+    });
+    const addressModel = this.addressRepository.create({
+      customer: { id: userId },
+      state: { id: address.stateId },
+      street: address.street,
+      landmark: address.landmark,
+      houseNo: address.houseNo,
+      address: `${address.houseNo ? `${address.houseNo}` : ''}, ${
+        address.street
+      }, ${address.landmark ? `${address.landmark},` : ''}, ${state.name}`,
+    });
+    await this.addressRepository.save(addressModel);
   }
 
   async createCustomer(user: CreateCustomerDto) {
@@ -187,7 +248,7 @@ export class UsersService {
     // });
     // const otpModel = this.otpRepository.create({ otp, pinId });
     // this.otpRepository.save(otpModel);
-    const lga = await this.lgaRepository.findOne({ where: { id: user.lgaId } });
+    // const lga = await this.lgaRepository.findOne({ where: { id: user.lgaId } });
     const state = await this.stateRepository.findOne({
       where: { id: user.stateId },
     });
@@ -195,19 +256,23 @@ export class UsersService {
       fullName: user.fullName,
       phone: user.phone,
       email: user.email,
-      state: { id: user.stateId },
-      lga: { id: user.lgaId },
-      street: user.street,
-      landmark: user.landmark,
       password: hashedPassword,
       type: UserType.CUSTOMER,
       verified: true, // should be false but set to true for now
-      houseNo: user.houseNo,
-      address: `${user.houseNo}, ${user.street}, ${
-        user.landmark ? `${user.landmark},` : ''
-      } ${lga.name}, ${state.name}`,
     });
-    return this.customerRepository.save(userModel);
+    const customer = await this.customerRepository.save(userModel);
+    const addressModel = this.addressRepository.create({
+      customer: { id: customer.id },
+      state: { id: user.stateId },
+      street: user.street,
+      landmark: user.landmark,
+      houseNo: user.houseNo,
+      address: `${user.houseNo ? `${user.houseNo},` : ''} ${user.street}, ${
+        user.landmark ? `${user.landmark},` : ''
+      } ${state.name}`,
+    });
+    await this.addressRepository.save(addressModel);
+    return customer;
     // const userInDB = await this.customerRepository.save(userModel);
     // return { pinId, id: userInDB.id };
   }
@@ -257,8 +322,20 @@ export class UsersService {
       const userWishlist = await this.wishlistRepository.findOneBy({
         customer: { id: userId },
       });
+      const userOrders = await this.orderRepository.findBy({
+        customer: { id: userId },
+      });
+      const userAddresses = await this.addressRepository.findBy({
+        customer: { id: userId },
+      });
+      const userReviews = await this.reviewRepository.findBy({
+        customer: { id: userId },
+      });
       userInDB['cart'] = userCart ? JSON.parse(userCart.data) : [];
       userInDB['wishlist'] = userWishlist ? JSON.parse(userWishlist.data) : [];
+      userInDB['orders'] = userOrders;
+      userInDB['addresses'] = userAddresses;
+      userInDB['reviews'] = userReviews;
     }
     return userInDB;
   }

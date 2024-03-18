@@ -17,6 +17,7 @@ import { Products } from '../products/products.entity';
 import { Order } from '../order/order.entity';
 import { MainCategory, SubCategory } from '../category/category.entity';
 import { CategoryModule } from '../category/category.module';
+import { UsersModule } from '../users/users.module';
 
 @Module({
   imports: [
@@ -43,7 +44,8 @@ import { CategoryModule } from '../category/category.module';
     }),
     ProductsModule,
     OrderModule,
-    CategoryModule
+    CategoryModule,
+    UsersModule
   ],
   providers: [AdminService, AdminLocalStrategy, AdminJwtStrategy],
   controllers: [AdminController],

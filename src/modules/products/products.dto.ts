@@ -52,6 +52,34 @@ export class ProductQuery {
   pagination?: PaginationInput;
 }
 
+export class UpdateReviewDto {
+  @IsString()
+  @IsOptional()
+  title: string;
+
+  @IsString()
+  @IsOptional()
+  description: string;
+
+  @IsNumber()
+  @IsOptional()
+  rating: number;
+}
+
+export class CreateReviewDto {
+  @IsNumber()
+  productId: number;
+
+  @IsString()
+  title: string;
+
+  @IsString()
+  description: string;
+
+  @IsNumber()
+  rating: number;
+}
+
 export class CreateProductDto {
   @IsString()
   name: string;
@@ -75,6 +103,7 @@ export class CreateProductDto {
   price: number;
 
   @IsNumber()
+  @IsOptional()
   @Min(0)
   @Transform(({ value }) => parseFloat(value))
   discountPrice: number;

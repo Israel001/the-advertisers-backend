@@ -23,7 +23,7 @@
     "typeorm": "ts-node -r tsconfig-paths/register ./node_modules/typeorm/cli.js -d src/config/ormconfig-migration.ts",
     "typeorm:create": "ts-node -r tsconfig-paths/register ./node_modules/typeorm/cli.js migration:create",
     "typeorm:generate": "npm run typeorm migration:generate",
-    "typeorm:run": "npm run prebuild && npm run build && npm run typeorm migration:run",
+    "typeorm:run": "npm run typeorm migration:run",
     "typeorm:revert": "npm run prebuild && npm run build && npm run typeorm migration:revert",
     "keycloak:scripts": "ts-node ./src/scripts/console"
   },
@@ -63,7 +63,8 @@
     "rimraf": "^3.0.2",
     "rxjs": "^7.5.7",
     "typeorm": "^0.3.10",
-    "typeorm-naming-strategies": "^4.1.0"
+    "typeorm-naming-strategies": "^4.1.0",
+    "uuid": "^9.0.1"
   },
   "devDependencies": {
     "@automapper/types": "^6.3.1",
@@ -80,6 +81,7 @@
     "@types/node": "^18.8.2",
     "@types/passport-jwt": "^3.0.7",
     "@types/supertest": "^2.0.12",
+    "@types/uuid": "^9.0.8",
     "@typescript-eslint/eslint-plugin": "^5.39.0",
     "@typescript-eslint/parser": "^5.39.0",
     "eslint": "^8.24.0",

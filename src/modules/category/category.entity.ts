@@ -42,7 +42,7 @@ export class SubCategory extends BaseEntity {
   @AutoMap()
   featuredImage: string;
 
-  @ManyToOne(() => MainCategory)
+  @ManyToOne(() => MainCategory, { eager: true })
   @AutoMap()
   mainCategory: MainCategory;
 

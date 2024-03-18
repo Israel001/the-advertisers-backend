@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   ParseIntPipe,
@@ -10,7 +11,15 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
-import { CreateCustomerDto, CreateStoreDto, InviteUserDto, UpdateCustomerDto, UpdateStoreDto } from './users.dto';
+import {
+  CreateAddressDto,
+  CreateCustomerDto,
+  CreateStoreDto,
+  InviteUserDto,
+  UpdateAddressDto,
+  UpdateCustomerDto,
+  UpdateStoreDto,
+} from './users.dto';
 import { JwtAuthGuard } from 'src/guards/jwt-auth-guard';
 import { Request } from 'express';
 import { Role } from 'src/decorators/roles.decorator';
@@ -27,6 +36,31 @@ export class UsersController {
   @Post('/customer')
   registerCustomer(@Body() body: CreateCustomerDto) {
     return this.usersService.createCustomer(body);
+  }
+
+  @Post('/customer/address')
+  @UseGuards(JwtAuthGuard)
+  createNewAddress(@Body() body: CreateAddressDto, @Req() request: Request) {
+    return this.usersService.createNewAddress(body, request.user as any);
+  }
+
+  @Put('/customer/address/:id')
+  @UseGuards(JwtAuthGuard)
+  updateAddress(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() body: UpdateAddressDto,
+    @Req() request: Request,
+  ) {
+    return this.usersService.updateAddress(id, body, request.user as any);
+  }
+
+  @Delete('/customer/address/:id')
+  @UseGuards(JwtAuthGuard)
+  deleteAddress(
+    @Param('id', ParseIntPipe) id: number,
+    @Req() request: Request,
+  ) {
+    return this.usersService.deleteAddress(id, request.user as any);
   }
 
   @Put('/customer/:id')
@@ -111,10 +145,7 @@ export class UsersController {
 
   @Post('save-cart')
   @UseGuards(JwtAuthGuard)
-  saveCart(
-    @Body('cartData') cartData: string,
-    @Req() request: Request,
-  ) {
+  saveCart(@Body('cartData') cartData: string, @Req() request: Request) {
     return this.usersService.saveCart(cartData, request.user as any);
   }
 }

@@ -44,6 +44,16 @@ export class CustomerFilter {
   endDate?: Date;
 }
 
+export class GeneralQuery {
+  @IsOptional()
+  @IsString()
+  search?: string;
+
+  @ValidateNested()
+  @Type(() => PaginationInput)
+  pagination?: PaginationInput;
+}
+
 export class CustomerQuery {
   @ValidateNested()
   @Type(() => CustomerFilter)

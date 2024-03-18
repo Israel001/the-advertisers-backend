@@ -7,7 +7,7 @@ import {
   ManyToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
-import { Store, StoreUsers } from '../users/users.entity';
+import { Customer, Store, StoreUsers } from '../users/users.entity';
 import { MainCategory, SubCategory } from '../category/category.entity';
 
 @Entity('products', { synchronize: false })
@@ -24,7 +24,7 @@ export class Products extends BaseEntity {
   @AutoMap()
   featuredImage: string;
 
-  @Column()
+  @Column({ type: 'text' })
   @AutoMap()
   images: string;
 
@@ -40,11 +40,11 @@ export class Products extends BaseEntity {
   @AutoMap()
   published: boolean;
 
-  @Column({ type: 'float' })
+  @Column({ type: 'decimal', scale: 2, default: 0 })
   @AutoMap()
   price: number;
 
-  @Column({ type: 'float' })
+  @Column({ type: 'decimal', scale: 2, default: 0 })
   @AutoMap()
   discountPrice: number;
 
@@ -83,6 +83,36 @@ export class Products extends BaseEntity {
   @ManyToOne(() => MainCategory)
   @AutoMap()
   mainCategory: MainCategory;
+
+  @DeleteDateColumn()
+  deletedAt?: Date;
+}
+
+@Entity('reviews', { synchronize: false })
+export class Reviews extends BaseEntity {
+  @PrimaryGeneratedColumn()
+  @AutoMap()
+  id: number;
+
+  @ManyToOne(() => Customer)
+  @AutoMap()
+  customer: Customer;
+
+  @ManyToOne(() => Products)
+  @AutoMap()
+  product: Products;
+
+  @Column()
+  @AutoMap()
+  title: string;
+
+  @Column({ type: 'text', nullable: true })
+  @AutoMap()
+  description: string;
+
+  @Column({ default: 0 })
+  @AutoMap()
+  rating: number;
 
   @DeleteDateColumn()
   deletedAt?: Date;

@@ -20,6 +20,7 @@ import { buildResponseDataWithPagination } from 'src/utils';
 import axios from 'axios';
 import { MonnifyConfig } from 'src/config/types/monnify.config';
 import { ConfigService } from '@nestjs/config';
+import { v4 as uuidv4 } from 'uuid';
 
 @Injectable()
 export class OrderService {
@@ -151,6 +152,7 @@ export class OrderService {
       details: order.details,
       payment: { id: order.paymentId },
       status: OrderStatus.PENDING,
+      reference: uuidv4(),
     });
     return this.orderRepository.save(orderModel);
   }

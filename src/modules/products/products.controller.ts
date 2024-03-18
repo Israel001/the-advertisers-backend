@@ -16,8 +16,10 @@ import {
 import { ProductsService } from './products.service';
 import {
   CreateProductDto,
+  CreateReviewDto,
   ProductQuery,
   UpdateProductDto,
+  UpdateReviewDto,
 } from './products.dto';
 import { JwtAuthGuard } from 'src/guards/jwt-auth-guard';
 import { StoreGuard } from 'src/guards/store-guard';
@@ -29,11 +31,10 @@ import { ImageInterceptor } from 'src/lib/image.interceptor';
 import { diskStorage } from 'multer';
 import { nanoid } from 'nanoid';
 import { IAuthContext } from 'src/types';
-import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
+import { ApiTags } from '@nestjs/swagger';
 
 @Controller('products')
 @ApiTags('products')
-@ApiBearerAuth()
 export class ProductsController {
   constructor(private readonly productsService: ProductsService) {}
 
@@ -150,6 +151,31 @@ export class ProductsController {
   )
   create(@Body() body: CreateProductDto, @Req() request: Request) {
     return this.productsService.createProduct(body, request.user as any);
+  }
+
+  @Post('/review')
+  @UseGuards(JwtAuthGuard)
+  createReview(@Body() body: CreateReviewDto, @Req() request: Request) {
+    return this.productsService.createReview(body, request.user as any);
+  }
+
+  @Put('/review/:id')
+  @UseGuards(JwtAuthGuard)
+  updateReview(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() body: UpdateReviewDto,
+    @Req() request: Request,
+  ) {
+    return this.productsService.updateReview(id, body, request.user as any);
+  }
+
+  @Delete('/review/:id')
+  @UseGuards(JwtAuthGuard)
+  deleteReview(
+    @Param('id', ParseIntPipe) id: number,
+    @Req() request: Request,
+  ) {
+    return this.productsService.deleteReview(id, request.user as any);
   }
 
   @Delete(':id')
