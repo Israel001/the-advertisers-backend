@@ -1,6 +1,7 @@
 import {
   ConflictException,
   Injectable,
+  Logger,
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
@@ -55,6 +56,30 @@ export class AdminService {
     private readonly jwtService: JwtService,
   ) {}
 
+  private logger = new Logger(AdminService.name);
+
+  async fetchAdmins() {
+    return this.adminUserRepository.find();
+  }
+
+  async deleteAdmin(id: number) {
+    return this.adminUserRepository.delete({ id });
+  }
+
+  async createAdmin(user: {
+    fullName: string;
+    email: string;
+    password: string;
+  }) {
+    const hashedPassword = await bcrypt.hash(user.password, 12);
+    const userModel = this.adminUserRepository.create({
+      fullName: user.fullName,
+      email: user.email,
+      password: hashedPassword,
+    });
+    return this.adminUserRepository.save(userModel);
+  }
+
   async getSlider() {
     const latestSlider = await this.sliderRepository.findOne({
       where: {},
@@ -79,16 +104,20 @@ export class AdminService {
     const categoryExists = await this.mainCategoryRepository.findOneBy({ id });
     if (!categoryExists) throw new NotFoundException('Category does not exist');
     if (categoryExists.featuredImage) {
-      fs.unlinkSync(
-        path.join(
-          dirname(__dirname),
-          '..',
-          '..',
-          '..',
-          'images',
-          categoryExists.featuredImage,
-        ),
-      );
+      try {
+        fs.unlinkSync(
+          path.join(
+            dirname(__dirname),
+            '..',
+            '..',
+            '..',
+            'images',
+            categoryExists.featuredImage,
+          ),
+        );
+      } catch (error) {
+        this.logger.log(`Error occurred while deleting file: ${error}`);
+      }
     }
     const catModel = this.mainCategoryRepository.create({
       id,
@@ -101,16 +130,20 @@ export class AdminService {
     const categoryExists = await this.subCategoryRepository.findOneBy({ id });
     if (!categoryExists) throw new NotFoundException('Category does not exist');
     if (categoryExists.featuredImage) {
-      fs.unlinkSync(
-        path.join(
-          dirname(__dirname),
-          '..',
-          '..',
-          '..',
-          'images',
-          categoryExists.featuredImage,
-        ),
-      );
+      try {
+        fs.unlinkSync(
+          path.join(
+            dirname(__dirname),
+            '..',
+            '..',
+            '..',
+            'images',
+            categoryExists.featuredImage,
+          ),
+        );
+      } catch (error) {
+        this.logger.log(`Error occurred while deleting file: ${error}`);
+      }
     }
     const catModel = this.subCategoryRepository.create({
       id,
@@ -134,16 +167,20 @@ export class AdminService {
       category.featuredImage &&
       category.featuredImage !== categoryExists.featuredImage
     ) {
-      fs.unlinkSync(
-        path.join(
-          dirname(__dirname),
-          '..',
-          '..',
-          '..',
-          'images',
-          categoryExists.featuredImage,
-        ),
-      );
+      try {
+        fs.unlinkSync(
+          path.join(
+            dirname(__dirname),
+            '..',
+            '..',
+            '..',
+            'images',
+            categoryExists.featuredImage,
+          ),
+        );
+      } catch (error) {
+        this.logger.log(`Error occurred while deleting file: ${error}`);
+      }
     }
     const catModel = this.mainCategoryRepository.create({ id, ...category });
     return this.mainCategoryRepository.save(catModel);
@@ -155,16 +192,20 @@ export class AdminService {
       order: { id: 'DESC' },
     });
     if (latestSlider && latestSlider?.image && latestSlider?.image !== slider) {
-      fs.unlinkSync(
-        path.join(
-          dirname(__dirname),
-          '..',
-          '..',
-          '..',
-          'images',
-          latestSlider.image,
-        ),
-      );
+      try {
+        fs.unlinkSync(
+          path.join(
+            dirname(__dirname),
+            '..',
+            '..',
+            '..',
+            'images',
+            latestSlider.image,
+          ),
+        );
+      } catch (error) {
+        this.logger.log(`Error occurred while deleting file: ${error}`);
+      }
     }
     const sliderModel = this.sliderRepository.create({
       ...(latestSlider ? { id: latestSlider.id } : {}),

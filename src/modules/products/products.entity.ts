@@ -76,11 +76,11 @@ export class Products extends BaseEntity {
   @AutoMap()
   lastUpdatedBy: StoreUsers;
 
-  @ManyToOne(() => SubCategory)
+  @ManyToOne(() => SubCategory, { eager: true })
   @AutoMap()
   category: SubCategory;
 
-  @ManyToOne(() => MainCategory)
+  @ManyToOne(() => MainCategory, { eager: true })
   @AutoMap()
   mainCategory: MainCategory;
 

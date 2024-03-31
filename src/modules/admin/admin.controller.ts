@@ -63,6 +63,18 @@ export class AdminController {
     return 'Welcome to The-Advertisers Admin!!!';
   }
 
+  @Get('fetch-admins')
+  fetchAdmins() {
+    return this.service.fetchAdmins();
+  }
+
+  @Post()
+  createAdmin(
+    @Body() body: { fullName: string; email: string; password: string },
+  ) {
+    return this.service.createAdmin(body);
+  }
+
   @Post('category/:id/subCategory')
   @UseInterceptors(
     FileFieldsInterceptor([{ name: 'featuredImage', maxCount: 1 }], {
@@ -93,7 +105,7 @@ export class AdminController {
     return this.categoryService.createSubCategory(id, body);
   }
 
-  @Put(':id')
+  @Put('category/:id')
   @UseInterceptors(
     FileFieldsInterceptor([{ name: 'featuredImage', maxCount: 1 }], {
       limits: { fileSize: 10 * 1024 * 1024 }, // 10MB
@@ -178,6 +190,11 @@ export class AdminController {
     @Param('id', ParseIntPipe) id: number,
   ) {
     return this.service.updateMainCategory(body, id);
+  }
+
+  @Delete(':id')
+  deleteAdmin(@Param('id', ParseIntPipe) id: number) {
+    return this.service.deleteAdmin(id);
   }
 
   @Delete('/main-category/:id')
@@ -272,6 +289,11 @@ export class AdminController {
       true,
       true,
     );
+  }
+
+  @Get('/products/:id')
+  getProductDetail(@Param('id', ParseIntPipe) id: number) {
+    return this.productService.fetchProductById(id);
   }
 
   @Get('/orders')

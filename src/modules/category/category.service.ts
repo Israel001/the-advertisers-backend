@@ -1,6 +1,7 @@
 import {
   ConflictException,
   Injectable,
+  Logger,
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -20,7 +21,9 @@ export class CategoryService {
     private readonly mainCategoryRepository: Repository<MainCategory>,
     @InjectRepository(SubCategory)
     private readonly subCategoryRepository: Repository<SubCategory>,
-  ) {}
+  ) { }
+  
+  private logger = new Logger(CategoryService.name);
 
   async createMainCategory(category: CreateCategoryDto) {
     const categoryModel = this.mainCategoryRepository.create({ ...category });
@@ -63,16 +66,20 @@ export class CategoryService {
       category.featuredImage &&
       category.featuredImage !== subCategoryExists.featuredImage
     ) {
-      fs.unlinkSync(
-        path.join(
-          dirname(__dirname),
-          '..',
-          '..',
-          '..',
-          'images',
-          subCategoryExists.featuredImage,
-        ),
-      );
+      try {
+        fs.unlinkSync(
+          path.join(
+            dirname(__dirname),
+            '..',
+            '..',
+            '..',
+            'images',
+            subCategoryExists.featuredImage,
+          ),
+        );
+      } catch (error) {
+        this.logger.log(`Error occurred while deleting file: ${error}`);
+      }
     }
     const categoryModel = this.subCategoryRepository.create({
       id: categoryId,

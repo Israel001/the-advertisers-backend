@@ -1,6 +1,7 @@
 import {
   BadRequestException,
   Injectable,
+  Logger,
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
@@ -39,6 +40,8 @@ export class ProductsService {
     @InjectRepository(Reviews)
     private readonly reviewRepository: Repository<Reviews>,
   ) {}
+
+  private logger = new Logger(ProductsService.name);
 
   async fetchTopSellingProducts() {
     return this.productRepository.query(
@@ -135,6 +138,7 @@ export class ProductsService {
         [pagination.orderBy || 'createdAt']:
           pagination.orderDir || OrderDir.DESC,
       },
+      relations: ['store'],
       ...(removePagination ? {} : { skip: limit * (page - 1), take: limit }),
     });
     return buildResponseDataWithPagination(products, totalProducts, {
@@ -164,22 +168,30 @@ export class ProductsService {
       product.featuredImage &&
       product.featuredImage !== productExists.featuredImage
     ) {
-      fs.unlinkSync(
-        path.join(
-          dirname(__dirname),
-          '..',
-          '..',
-          '..',
-          'images',
-          productExists.featuredImage,
-        ),
-      );
+      try {
+        fs.unlinkSync(
+          path.join(
+            dirname(__dirname),
+            '..',
+            '..',
+            '..',
+            'images',
+            productExists.featuredImage,
+          ),
+        );
+      } catch (error) {
+        this.logger.log(`Error occurred while deleting file: ${error}`);
+      }
     }
     if (product.images && product.images.split(',').length) {
       for (const oldImage of productExists.images.split(',')) {
-        fs.unlinkSync(
-          path.join(dirname(__dirname), '..', '..', 'images', oldImage),
-        );
+        try {
+          fs.unlinkSync(
+            path.join(dirname(__dirname), '..', '..', 'images', oldImage),
+          );
+        } catch (error) {
+          this.logger.log(`Error occurred while deleting file: ${error}`);
+        }
       }
     }
     const productModel = this.productRepository.create({
