@@ -9,6 +9,7 @@ import { AdminUser, Slider } from './admin.entities';
 import { IAdminAuthContext, OrderDir, OrderStatus } from 'src/types';
 import { InjectRepository } from '@nestjs/typeorm';
 import {
+  IsNull,
   LessThanOrEqual,
   Like,
   MoreThanOrEqual,
@@ -103,52 +104,78 @@ export class AdminService {
   async deleteMainCategory(id: number) {
     const categoryExists = await this.mainCategoryRepository.findOneBy({ id });
     if (!categoryExists) throw new NotFoundException('Category does not exist');
-    if (categoryExists.featuredImage) {
-      try {
-        fs.unlinkSync(
-          path.join(
-            dirname(__dirname),
-            '..',
-            '..',
-            '..',
-            'images',
-            categoryExists.featuredImage,
-          ),
-        );
-      } catch (error) {
-        this.logger.log(`Error occurred while deleting file: ${error}`);
-      }
-    }
+    // if (categoryExists.featuredImage) {
+    //   try {
+    //     fs.unlinkSync(
+    //       path.join(
+    //         dirname(__dirname),
+    //         '..',
+    //         '..',
+    //         '..',
+    //         'images',
+    //         categoryExists.featuredImage,
+    //       ),
+    //     );
+    //   } catch (error) {
+    //     this.logger.log(`Error occurred while deleting file: ${error}`);
+    //   }
+    // }
     const catModel = this.mainCategoryRepository.create({
       id,
       deletedAt: new Date(),
     });
+    const subCategoriesToDelete = await this.subCategoryRepository.findBy({
+      mainCategory: { id },
+    });
+    const productsToDelete = await this.productsRepository.findBy({
+      mainCategory: { id },
+    });
+    const deletePromises = [];
+    for (const cat of subCategoriesToDelete) {
+      deletePromises.push(
+        this.subCategoryRepository.save({ id: cat.id, deletedAt: new Date() }),
+      );
+    }
+    for (const prod of productsToDelete) {
+      deletePromises.push(
+        this.productsRepository.save({ id: prod.id, deletedAt: new Date() }),
+      );
+    }
     return this.mainCategoryRepository.save(catModel);
   }
 
   async deleteSubCategory(id: number) {
     const categoryExists = await this.subCategoryRepository.findOneBy({ id });
     if (!categoryExists) throw new NotFoundException('Category does not exist');
-    if (categoryExists.featuredImage) {
-      try {
-        fs.unlinkSync(
-          path.join(
-            dirname(__dirname),
-            '..',
-            '..',
-            '..',
-            'images',
-            categoryExists.featuredImage,
-          ),
-        );
-      } catch (error) {
-        this.logger.log(`Error occurred while deleting file: ${error}`);
-      }
-    }
+    // if (categoryExists.featuredImage) {
+    //   try {
+    //     fs.unlinkSync(
+    //       path.join(
+    //         dirname(__dirname),
+    //         '..',
+    //         '..',
+    //         '..',
+    //         'images',
+    //         categoryExists.featuredImage,
+    //       ),
+    //     );
+    //   } catch (error) {
+    //     this.logger.log(`Error occurred while deleting file: ${error}`);
+    //   }
+    // }
     const catModel = this.subCategoryRepository.create({
       id,
       deletedAt: new Date(),
     });
+    const productsToDelete = await this.productsRepository.findBy({
+      category: { id },
+    });
+    const deletePromises = [];
+    for (const prod of productsToDelete) {
+      deletePromises.push(
+        this.productsRepository.save({ id: prod.id, deletedAt: new Date() }),
+      );
+    }
     return this.subCategoryRepository.save(catModel);
   }
 
@@ -309,7 +336,10 @@ export class AdminService {
   }
 
   async activateCustomer(id: number) {
-    const customer = await this.customerRepository.findOneBy({ id });
+    const customer = await this.customerRepository.findOne({
+      where: { id },
+      withDeleted: true,
+    });
     if (!customer) throw new NotFoundException('Customer not found');
     const customerModel = this.customerRepository.create({
       id,
@@ -349,6 +379,7 @@ export class AdminService {
   ) {
     const { page = 1, limit = 20 } = pagination;
     const baseConditions = {
+      createdAt: Not(IsNull()),
       ...(filter?.startDate
         ? { createdAt: MoreThanOrEqual(filter?.startDate) }
         : {}),
@@ -369,8 +400,8 @@ export class AdminService {
         [pagination.orderBy || 'createdAt']:
           pagination.orderDir || OrderDir.DESC,
       },
-      skip: limit * (page - 1),
-      take: limit,
+      // skip: limit * (page - 1),
+      // take: limit,
     });
     return buildResponseDataWithPagination(stores, totalStores, {
       page,
@@ -430,6 +461,7 @@ export class AdminService {
   ) {
     const { page = 1, limit = 20 } = pagination;
     const baseConditions = {
+      createdAt: Not(IsNull()),
       ...(filter?.startDate
         ? { createdAt: MoreThanOrEqual(filter?.startDate) }
         : {}),
@@ -458,8 +490,9 @@ export class AdminService {
         [pagination.orderBy || 'createdAt']:
           pagination.orderDir || OrderDir.DESC,
       },
-      skip: limit * (page - 1),
-      take: limit,
+      withDeleted: true,
+      // skip: limit * (page - 1),
+      // take: limit,
     });
     return buildResponseDataWithPagination(customers, totalCustomers, {
       page,

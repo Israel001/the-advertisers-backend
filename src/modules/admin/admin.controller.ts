@@ -41,7 +41,7 @@ import { Store, StoreUsers } from '../users/users.entity';
 import { Repository } from 'typeorm';
 import { UsersService } from '../users/users.service';
 
-@Controller('/admin')
+@Controller('admin')
 @ApiTags('admin')
 @ApiBearerAuth()
 @UseGuards(AdminJwtAuthGuard)
@@ -57,6 +57,16 @@ export class AdminController {
     private readonly storeUserRepository: Repository<StoreUsers>,
     private readonly userService: UsersService,
   ) {}
+
+  @Post('deactivate-customer/:id')
+  deactivateCustomer(@Param('id', ParseIntPipe) id: number) {
+    return this.service.deactivateCustomer(id);
+  }
+
+  @Post('activate-customer/:id')
+  activateCustomer(@Param('id', ParseIntPipe) id: number) {
+    return this.service.activateCustomer(id);
+  }
 
   @Get()
   getHello(): string {
@@ -135,7 +145,7 @@ export class AdminController {
     return this.categoryService.updateSubCategory(id, body);
   }
 
-  @Post('/main-category')
+  @Post('main-category')
   @UseInterceptors(
     FileFieldsInterceptor([{ name: 'featuredImage', maxCount: 1 }], {
       limits: { fileSize: 10 * 1024 * 1024 }, // 10MB
@@ -162,7 +172,7 @@ export class AdminController {
     return this.service.createMainCategory(body);
   }
 
-  @Put('/main-category/:id')
+  @Put('main-category/:id')
   @UseInterceptors(
     FileFieldsInterceptor([{ name: 'featuredImage', maxCount: 1 }], {
       limits: { fileSize: 10 * 1024 * 1024 }, // 10MB
@@ -197,23 +207,23 @@ export class AdminController {
     return this.service.deleteAdmin(id);
   }
 
-  @Delete('/main-category/:id')
+  @Delete('main-category/:id')
   deleteMainCategory(@Param('id', ParseIntPipe) id: number) {
     return this.service.deleteMainCategory(id);
   }
 
-  @Delete('/sub-category/:id')
+  @Delete('sub-category/:id')
   deleteSubCategory(@Param('id', ParseIntPipe) id: number) {
     return this.service.deleteSubCategory(id);
   }
 
-  @Get('/get-slider')
+  @Get('get-slider')
   @AllowUnauthorizedRequest()
   getSlider() {
     return this.service.getSlider();
   }
 
-  @Post('/upload-slider')
+  @Post('upload-slider')
   @UseInterceptors(
     FileFieldsInterceptor([{ name: 'slider', maxCount: 1 }], {
       limits: { fileSize: 10 * 1024 * 1024 }, // 10MB
@@ -240,14 +250,14 @@ export class AdminController {
     return this.service.uploadSlider(slider);
   }
 
-  @Post('/auth/login')
+  @Post('auth/login')
   @AllowUnauthorizedRequest()
   @UseGuards(AdminLocalAuthGuard)
   login(@Body() _body: dtos.AdminLoginDTO, @Req() req: any) {
     return this.service.login(req.user);
   }
 
-  @Get('/customers')
+  @Get('customers')
   fetchCustomers(@Query() query: dtos.CustomerQuery) {
     return this.service.fetchCustomers(
       query.pagination,
@@ -256,22 +266,22 @@ export class AdminController {
     );
   }
 
-  @Get('/categories')
+  @Get('categories')
   fetchCategories(@Query() query: dtos.GeneralQuery) {
     return this.service.fetchCategories(query.search);
   }
 
-  @Get('/main-categories')
+  @Get('main-categories')
   fetchMainCategories(@Query() query: dtos.GeneralQuery) {
     return this.service.fetchMainCategories(query.search);
   }
 
-  @Get('/main-categories/:id/categories')
+  @Get('main-categories/:id/categories')
   fetchSubCategories(@Param('id', ParseIntPipe) id: number) {
     return this.service.fetchSubCategories(id);
   }
 
-  @Get('/stores')
+  @Get('stores')
   fetchStores(@Query() query: dtos.CustomerQuery) {
     return this.service.fetchStores(
       query.pagination,
@@ -280,7 +290,7 @@ export class AdminController {
     );
   }
 
-  @Get('/products')
+  @Get('products')
   fetchProducts(@Query() query: ProductQuery) {
     return this.productService.fetchProducts(
       query.pagination,
@@ -291,12 +301,12 @@ export class AdminController {
     );
   }
 
-  @Get('/products/:id')
+  @Get('products/:id')
   getProductDetail(@Param('id', ParseIntPipe) id: number) {
     return this.productService.fetchProductById(id);
   }
 
-  @Get('/orders')
+  @Get('orders')
   fetchOrders(@Query() query: OrderQuery) {
     return this.orderService.fetchOrders(
       query.pagination,
@@ -305,7 +315,7 @@ export class AdminController {
     );
   }
 
-  @Put('/order/:id/:status')
+  @Put('order/:id/:status')
   updateOrderStatus(
     @Param('id', ParseIntPipe) id: number,
     @Query('status', new ParseEnumPipe(OrderStatus))
@@ -314,7 +324,7 @@ export class AdminController {
     return this.service.updateOrderStatus(id, status);
   }
 
-  @Post('/product')
+  @Post('product')
   @UseInterceptors(
     FileFieldsInterceptor(
       [
@@ -370,7 +380,7 @@ export class AdminController {
     } as IAuthContext);
   }
 
-  @Put('/product/:id')
+  @Put('product/:id')
   @UseInterceptors(
     FileFieldsInterceptor(
       [
@@ -406,37 +416,27 @@ export class AdminController {
     return this.productService.updateProduct(id, body, {} as any);
   }
 
-  @Delete('/product/:id')
+  @Delete('product/:id')
   deleteProduct(@Param('id', ParseIntPipe) id: number) {
     return this.service.deleteProduct(id);
   }
 
-  @Get('/customer/:id')
+  @Get('customer/:id')
   getCustomerById(@Param('id', ParseIntPipe) id: number) {
     return this.service.getCustomerById(id);
   }
 
-  @Put('/customer/:id/deactivate')
-  deactivateCustomer(@Param('id', ParseIntPipe) id: number) {
-    return this.service.deactivateCustomer(id);
-  }
-
-  @Put('/customer/:id/activate')
-  activateCustomer(@Param('id', ParseIntPipe) id: number) {
-    return this.service.activateCustomer(id);
-  }
-
-  @Put('/store/:id/deactivate')
+  @Post('store/:id/deactivate')
   deactivateStore(@Param('id', ParseIntPipe) id: number) {
     return this.service.deactivateStore(id);
   }
 
-  @Put('/store/:id/activate')
+  @Post('store/:id/activate')
   activateStore(@Param('id', ParseIntPipe) id: number) {
     return this.service.activateStore(id);
   }
 
-  @Put('/store/:id')
+  @Put('store/:id')
   updateStore(
     @Param('id', ParseIntPipe) id: number,
     @Body() body: UpdateStoreDto,
@@ -444,7 +444,7 @@ export class AdminController {
     return this.service.updateStore(id, body);
   }
 
-  @Put('/customer/:id')
+  @Put('customer/:id')
   updateCustomer(
     @Param('id', ParseIntPipe) id: number,
     @Body() body: UpdateCustomerDto,

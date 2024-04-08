@@ -33,6 +33,10 @@ export class ProductFilter {
   storeId: string;
 
   @IsOptional()
+  @IsNumberString()
+  mainCategoryId: string;
+
+  @IsOptional()
   @IsBooleanString()
   published: string;
 }

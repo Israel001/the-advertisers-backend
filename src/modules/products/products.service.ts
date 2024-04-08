@@ -108,6 +108,9 @@ export class ProductsService {
         : {}),
       ...(filter?.avgRating ? { avgRating: parseInt(filter?.avgRating) } : {}),
       ...(filter?.storeId ? { store: { id: parseInt(filter?.storeId) } } : {}),
+      ...(filter?.mainCategoryId
+        ? { mainCategory: { id: parseInt(filter?.mainCategoryId) } }
+        : {}),
     };
     const allConditions = [
       {

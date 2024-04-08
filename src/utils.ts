@@ -62,6 +62,5 @@ export const camelCaseKeysToUnderscore = (obj: object) => {
       obj[newName] = camelCaseKeysToUnderscore(obj[newName]);
     }
   }
-  console.log(obj);
   return obj;
 };

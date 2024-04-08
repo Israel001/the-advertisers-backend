@@ -125,9 +125,9 @@ export class UsersService {
       street: user.street,
       landmark: user.landmark,
       houseNo: user.houseNo,
-      address: `${user.houseNo ? `${user.houseNo},` : ''} ${user.street}, ${
-        user.landmark ? `${user.landmark},` : ''
-      } ${state.name}`,
+      address: `${user.houseNo ? `${user.houseNo}, ` : ''}${user.street}, ${
+        user.landmark ? `${user.landmark}, ` : ''
+      }${state.name}`,
     });
     // const pinId = nanoid();
     // const otp = generateOtp();
@@ -267,9 +267,9 @@ export class UsersService {
       street: user.street,
       landmark: user.landmark,
       houseNo: user.houseNo,
-      address: `${user.houseNo ? `${user.houseNo},` : ''} ${user.street}, ${
-        user.landmark ? `${user.landmark},` : ''
-      } ${state.name}`,
+      address: `${user.houseNo ? `${user.houseNo}, ` : ''}${user.street}, ${
+        user.landmark ? `${user.landmark}, ` : ''
+      }${state.name}`,
     });
     await this.addressRepository.save(addressModel);
     return customer;

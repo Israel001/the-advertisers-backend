@@ -53,7 +53,7 @@ export class OrderService {
         },
       )
       .catch((error) => {
-        console.log(error.response);
+        error.response;
         throw error;
       });
     const accessToken = response.data.responseBody.accessToken;
