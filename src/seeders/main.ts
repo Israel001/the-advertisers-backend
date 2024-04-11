@@ -5,9 +5,15 @@ import { parseCommandLineForClassFlag, startSeeding } from './seed-functions';
 import NotificationTemplatesSeed from './seeds/notification_templates.seed';
 import RolesSeed from './seeds/roles.seed';
 import LgasSeed from './seeds/lgas.seed';
+import AdminRolesSeed from './seeds/admin_roles.seed';
 
 const SeederModuleRegister = (): DynamicModule => {
-  return SeederModule.forRoot([NotificationTemplatesSeed, RolesSeed, LgasSeed]);
+  return SeederModule.forRoot([
+    NotificationTemplatesSeed,
+    RolesSeed,
+    LgasSeed,
+    AdminRolesSeed,
+  ]);
 };
 
 export async function bootstrap(fromCommandLine = true) {

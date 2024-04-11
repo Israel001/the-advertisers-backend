@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { AdminUser, Slider } from './admin.entities';
+import { AdminRoles, AdminUser, Slider } from './admin.entities';
 import { PassportModule } from '@nestjs/passport';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { JwtAuthConfiguration } from 'src/config/configuration';
@@ -31,6 +31,7 @@ import { UsersModule } from '../users/users.module';
       Slider,
       MainCategory,
       SubCategory,
+      AdminRoles
     ]),
     PassportModule,
     ConfigModule.forRoot({ load: [JwtAuthConfiguration] }),

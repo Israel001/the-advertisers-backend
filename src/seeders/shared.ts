@@ -10,6 +10,7 @@ import { NotificationTemplates } from 'src/entities/notification-templates.entit
 import { Roles } from 'src/modules/users/users.entity';
 import { Lga } from 'src/entities/lga.entity';
 import { State } from 'src/entities/state.entity';
+import { AdminRoles } from 'src/modules/admin/admin.entities';
 
 const logger = new Logger('SeederRunner');
 
@@ -25,6 +26,11 @@ const saveTemplate = async (
 };
 
 const saveRole = async (role: IRolesSeed, rolesRepo: Repository<Roles>) => {
+  const roleModel = rolesRepo.create({ name: role.name });
+  await rolesRepo.save(roleModel);
+};
+
+const saveAdminRole = async (role: IRolesSeed, rolesRepo: Repository<AdminRoles>) => {
   const roleModel = rolesRepo.create({ name: role.name });
   await rolesRepo.save(roleModel);
 };
@@ -57,6 +63,8 @@ export const seederRunner = async ({
   notificationTemplateRepo,
   rolesData,
   rolesRepo,
+  adminRolesData,
+  adminRolesRepo,
   lgaData,
   statesRepo,
   lgaRepo,
@@ -94,6 +102,22 @@ export const seederRunner = async ({
       }
     }
     await rolesRepo.query('SET FOREIGN_KEY_CHECKS = 1;');
+  }
+  if (adminRolesRepo) {
+    await adminRolesRepo.query('SET FOREIGN_KEY_CHECKS = 0;');
+    await adminRolesRepo.clear();
+    if (adminRolesData && adminRolesData.length) {
+      for (const role of adminRolesData) {
+        await saveAdminRole(role, adminRolesRepo).catch((error) => {
+          logger.error(
+            `Error occurred when seeding role: '${role.name}'`,
+            error.stack,
+            'AdminRolesSeeder',
+          );
+        });
+      }
+    }
+    await adminRolesRepo.query('SET FOREIGN_KEY_CHECKS = 1;');
   }
   if (lgaRepo && statesRepo) {
     await lgaRepo.query('SET FOREIGN_KEY_CHECKS = 0;');

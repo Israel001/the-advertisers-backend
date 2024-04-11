@@ -5,7 +5,7 @@ import {
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
-import { AdminUser, Slider } from './admin.entities';
+import { AdminRoles, AdminUser, Slider } from './admin.entities';
 import { IAdminAuthContext, OrderDir, OrderStatus } from 'src/types';
 import { InjectRepository } from '@nestjs/typeorm';
 import {
@@ -54,10 +54,16 @@ export class AdminService {
     private readonly mainCategoryRepository: Repository<MainCategory>,
     @InjectRepository(SubCategory)
     private readonly subCategoryRepository: Repository<SubCategory>,
+    @InjectRepository(AdminRoles)
+    private readonly adminRoleRepository: Repository<AdminRoles>,
     private readonly jwtService: JwtService,
   ) {}
 
   private logger = new Logger(AdminService.name);
+
+  async fetchRoles() {
+    return this.adminRoleRepository.find();
+  }
 
   async deleteAdmin(id: number) {
     return this.adminUserRepository.delete({ id });
@@ -561,6 +567,7 @@ export class AdminService {
       userId: user.id,
       name: user.fullName,
       email: user.email,
+      role: user.role,
     };
     const userInfo = await this.findUserByEmail(user.email);
     delete userInfo.password;

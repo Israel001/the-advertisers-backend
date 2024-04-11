@@ -40,11 +40,13 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Store, StoreUsers } from '../users/users.entity';
 import { Repository } from 'typeorm';
 import { UsersService } from '../users/users.service';
+import { AdminRole } from 'src/decorators/admin_roles.decorator';
+import { AdminRoleGuard } from 'src/modules/admin/guards/role-guard';
 
 @Controller('admin')
 @ApiTags('admin')
 @ApiBearerAuth()
-@UseGuards(AdminJwtAuthGuard)
+@UseGuards(AdminJwtAuthGuard, AdminRoleGuard)
 export class AdminController {
   constructor(
     private readonly service: AdminService,
@@ -58,17 +60,26 @@ export class AdminController {
     private readonly userService: UsersService,
   ) {}
 
+  @Get('roles')
+  @AdminRole({ roles: ['Super Admin', 'Admin'] })
+  fetchRoles() {
+    return this.service.fetchRoles();
+  }
+
   @Post('deactivate-customer/:id')
+  @AdminRole({ roles: ['Super Admin'] })
   deactivateCustomer(@Param('id', ParseIntPipe) id: number) {
     return this.service.deactivateCustomer(id);
   }
 
   @Post('activate-customer/:id')
+  @AdminRole({ roles: ['Super Admin'] })
   activateCustomer(@Param('id', ParseIntPipe) id: number) {
     return this.service.activateCustomer(id);
   }
 
   @Put('edit-customer/:id')
+  @AdminRole({ roles: ['Super Admin', 'Admin'] })
   editCustomer(
     @Param('id', ParseIntPipe) id: number,
     @Body() body: UpdateCustomerDto,
@@ -77,16 +88,21 @@ export class AdminController {
   }
 
   @Get()
+  @AdminRole({
+    roles: ['Super Admin', 'Admin', 'Editor', 'User', 'Simple User'],
+  })
   getHello(): string {
     return 'Welcome to The-Advertisers Admin!!!';
   }
 
   @Get('fetch-admins')
+  @AdminRole({ roles: ['Super Admin'] })
   fetchAdmins(@Query() query: dtos.GeneralQuery) {
     return this.service.fetchAdmins(query.search, query.pagination);
   }
 
   @Post()
+  @AdminRole({ roles: ['Super Admin'] })
   createAdmin(
     @Body() body: { fullName: string; email: string; password: string },
   ) {
@@ -94,6 +110,7 @@ export class AdminController {
   }
 
   @Post('category/:id/subCategory')
+  @AdminRole({ roles: ['Super Admin', 'Admin', 'Editor'] })
   @UseInterceptors(
     FileFieldsInterceptor([{ name: 'featuredImage', maxCount: 1 }], {
       limits: { fileSize: 10 * 1024 * 1024 }, // 10MB
@@ -124,6 +141,7 @@ export class AdminController {
   }
 
   @Put('category/:id')
+  @AdminRole({ roles: ['Super Admin', 'Admin', 'Editor'] })
   @UseInterceptors(
     FileFieldsInterceptor([{ name: 'featuredImage', maxCount: 1 }], {
       limits: { fileSize: 10 * 1024 * 1024 }, // 10MB
@@ -154,6 +172,7 @@ export class AdminController {
   }
 
   @Post('main-category')
+  @AdminRole({ roles: ['Super Admin', 'Admin', 'Editor'] })
   @UseInterceptors(
     FileFieldsInterceptor([{ name: 'featuredImage', maxCount: 1 }], {
       limits: { fileSize: 10 * 1024 * 1024 }, // 10MB
@@ -181,6 +200,7 @@ export class AdminController {
   }
 
   @Put('main-category/:id')
+  @AdminRole({ roles: ['Super Admin', 'Admin', 'Editor'] })
   @UseInterceptors(
     FileFieldsInterceptor([{ name: 'featuredImage', maxCount: 1 }], {
       limits: { fileSize: 10 * 1024 * 1024 }, // 10MB
@@ -211,16 +231,19 @@ export class AdminController {
   }
 
   @Delete(':id')
+  @AdminRole({ roles: ['Super Admin'] })
   deleteAdmin(@Param('id', ParseIntPipe) id: number) {
     return this.service.deleteAdmin(id);
   }
 
   @Delete('main-category/:id')
+  @AdminRole({ roles: ['Super Admin', 'Admin'] })
   deleteMainCategory(@Param('id', ParseIntPipe) id: number) {
     return this.service.deleteMainCategory(id);
   }
 
   @Delete('sub-category/:id')
+  @AdminRole({ roles: ['Super Admin', 'Admin'] })
   deleteSubCategory(@Param('id', ParseIntPipe) id: number) {
     return this.service.deleteSubCategory(id);
   }
@@ -232,6 +255,7 @@ export class AdminController {
   }
 
   @Post('upload-slider')
+  @AdminRole({ roles: ['Super Admin', 'Admin', 'Editor'] })
   @UseInterceptors(
     FileFieldsInterceptor([{ name: 'slider', maxCount: 1 }], {
       limits: { fileSize: 10 * 1024 * 1024 }, // 10MB
@@ -266,6 +290,9 @@ export class AdminController {
   }
 
   @Get('customers')
+  @AdminRole({
+    roles: ['Super Admin', 'Admin', 'Editor', 'User', 'Simple User'],
+  })
   fetchCustomers(@Query() query: dtos.CustomerQuery) {
     return this.service.fetchCustomers(
       query.pagination,
@@ -275,21 +302,27 @@ export class AdminController {
   }
 
   @Get('categories')
+  @AdminRole({ roles: ['Super Admin', 'Admin', 'Editor', 'User'] })
   fetchCategories(@Query() query: dtos.GeneralQuery) {
     return this.service.fetchCategories(query.search, query.pagination);
   }
 
   @Get('main-categories')
+  @AdminRole({ roles: ['Super Admin', 'Admin', 'Editor', 'User'] })
   fetchMainCategories(@Query() query: dtos.GeneralQuery) {
     return this.service.fetchMainCategories(query.search, query.pagination);
   }
 
   @Get('main-categories/:id/categories')
+  @AdminRole({ roles: ['Super Admin', 'Admin', 'Editor', 'User'] })
   fetchSubCategories(@Param('id', ParseIntPipe) id: number) {
     return this.service.fetchSubCategories(id);
   }
 
   @Get('stores')
+  @AdminRole({
+    roles: ['Super Admin', 'Admin', 'Editor', 'User', 'Simple User'],
+  })
   fetchStores(@Query() query: dtos.CustomerQuery) {
     return this.service.fetchStores(
       query.pagination,
@@ -299,6 +332,7 @@ export class AdminController {
   }
 
   @Get('products')
+  @AdminRole({ roles: ['Super Admin', 'Admin', 'Editor', 'User'] })
   fetchProducts(@Query() query: ProductQuery) {
     return this.productService.fetchProducts(
       query.pagination,
@@ -310,11 +344,15 @@ export class AdminController {
   }
 
   @Get('products/:id')
+  @AdminRole({ roles: ['Super Admin', 'Admin', 'Editor', 'User'] })
   getProductDetail(@Param('id', ParseIntPipe) id: number) {
     return this.productService.fetchProductById(id);
   }
 
   @Get('orders')
+  @AdminRole({
+    roles: ['Super Admin', 'Admin', 'Editor', 'User', 'Simple User'],
+  })
   fetchOrders(@Query() query: OrderQuery) {
     return this.orderService.fetchOrders(
       query.pagination,
@@ -324,6 +362,7 @@ export class AdminController {
   }
 
   @Put('order/:id/:status')
+  @AdminRole({ roles: ['Super Admin', 'Admin', 'Editor'] })
   updateOrderStatus(
     @Param('id', ParseIntPipe) id: number,
     @Query('status', new ParseEnumPipe(OrderStatus))
@@ -333,6 +372,7 @@ export class AdminController {
   }
 
   @Post('product')
+  @AdminRole({ roles: ['Super Admin', 'Admin', 'Editor'] })
   @UseInterceptors(
     FileFieldsInterceptor(
       [
@@ -389,6 +429,7 @@ export class AdminController {
   }
 
   @Put('product/:id')
+  @AdminRole({ roles: ['Super Admin', 'Admin', 'Editor'] })
   @UseInterceptors(
     FileFieldsInterceptor(
       [
@@ -425,26 +466,33 @@ export class AdminController {
   }
 
   @Delete('product/:id')
+  @AdminRole({ roles: ['Super Admin', 'Admin'] })
   deleteProduct(@Param('id', ParseIntPipe) id: number) {
     return this.service.deleteProduct(id);
   }
 
   @Get('customer/:id')
+  @AdminRole({
+    roles: ['Super Admin', 'Admin', 'Editor', 'User', 'Simple User'],
+  })
   getCustomerById(@Param('id', ParseIntPipe) id: number) {
     return this.service.getCustomerById(id);
   }
 
   @Post('store/:id/deactivate')
+  @AdminRole({ roles: ['Super Admin'] })
   deactivateStore(@Param('id', ParseIntPipe) id: number) {
     return this.service.deactivateStore(id);
   }
 
   @Post('store/:id/activate')
+  @AdminRole({ roles: ['Super Admin'] })
   activateStore(@Param('id', ParseIntPipe) id: number) {
     return this.service.activateStore(id);
   }
 
   @Put('store/:id')
+  @AdminRole({ roles: ['Super Admin', 'Admin', 'Editor'] })
   updateStore(
     @Param('id', ParseIntPipe) id: number,
     @Body() body: UpdateStoreDto,
@@ -453,6 +501,7 @@ export class AdminController {
   }
 
   @Put('customer/:id')
+  @AdminRole({ roles: ['Super Admin', 'Admin', 'Editor'] })
   updateCustomer(
     @Param('id', ParseIntPipe) id: number,
     @Body() body: UpdateCustomerDto,

@@ -1,3 +1,4 @@
+import { AdminRoles } from './modules/admin/admin.entities';
 import { Roles, Store } from './modules/users/users.entity';
 
 export interface RoleDecoratorOptionsInterface {
@@ -69,4 +70,5 @@ export interface IAdminAuthContext {
   name: string;
   email: string;
   userId: number;
+  role: AdminRoles;
 }

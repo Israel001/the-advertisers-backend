@@ -6,11 +6,18 @@ import { State } from 'src/entities/state.entity';
 import { Roles } from 'src/modules/users/users.entity';
 import databaseConfig from '../config/ormconfig';
 import { ISeederConstructor } from './seeder.interface';
+import { AdminRoles } from 'src/modules/admin/admin.entities';
 
 @Module({
   imports: [
     TypeOrmModule.forRoot(databaseConfig),
-    TypeOrmModule.forFeature([NotificationTemplates, Roles, State, Lga]),
+    TypeOrmModule.forFeature([
+      NotificationTemplates,
+      Roles,
+      State,
+      Lga,
+      AdminRoles,
+    ]),
   ],
 })
 export default class SeederModule {

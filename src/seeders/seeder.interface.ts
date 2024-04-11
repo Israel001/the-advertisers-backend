@@ -1,6 +1,7 @@
 import { Lga } from 'src/entities/lga.entity';
 import { NotificationTemplates } from 'src/entities/notification-templates.entity';
 import { State } from 'src/entities/state.entity';
+import { AdminRoles } from 'src/modules/admin/admin.entities';
 import { Roles } from 'src/modules/users/users.entity';
 import { Repository } from 'typeorm';
 
@@ -52,6 +53,8 @@ export interface ISeederRunnerArgs {
   notificationTemplateRepo?: Repository<NotificationTemplates>;
   rolesData?: IRolesSeed[];
   rolesRepo?: Repository<Roles>;
+  adminRolesData?: IRolesSeed[];
+  adminRolesRepo?: Repository<AdminRoles>;
   lgaData?: ILgaSeed[];
   statesRepo?: Repository<State>;
   lgaRepo?: Repository<Lga>;
