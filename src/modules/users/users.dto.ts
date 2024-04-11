@@ -36,13 +36,9 @@ export class UpdateCustomerDto {
   @IsOptional()
   phone: string;
 
-  @IsNumber()
+  @IsString()
   @IsOptional()
-  stateId: number;
-
-  @IsNumber()
-  @IsOptional()
-  lgaId: number;
+  email: string;
 }
 
 export class CreateAddressDto {

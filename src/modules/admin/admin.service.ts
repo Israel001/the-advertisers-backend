@@ -59,10 +59,6 @@ export class AdminService {
 
   private logger = new Logger(AdminService.name);
 
-  async fetchAdmins() {
-    return this.adminUserRepository.find();
-  }
-
   async deleteAdmin(id: number) {
     return this.adminUserRepository.delete({ id });
   }
@@ -262,7 +258,10 @@ export class AdminService {
   }
 
   async activateStore(id: number) {
-    const store = await this.storeRepository.findOneBy({ id });
+    const store = await this.storeRepository.findOne({
+      where: { id },
+      withDeleted: true,
+    });
     if (!store) throw new NotFoundException('Store not found');
     const storeModel = this.storeRepository.create({
       id,
@@ -400,8 +399,9 @@ export class AdminService {
         [pagination.orderBy || 'createdAt']:
           pagination.orderDir || OrderDir.DESC,
       },
-      // skip: limit * (page - 1),
-      // take: limit,
+      withDeleted: true,
+      skip: limit * (page - 1),
+      take: limit,
     });
     return buildResponseDataWithPagination(stores, totalStores, {
       page,
@@ -409,8 +409,33 @@ export class AdminService {
     });
   }
 
-  async fetchCategories(search: string) {
-    // const { page = 1, limit = 20 } = pagination;
+  async fetchAdmins(search: string, pagination: PaginationInput) {
+    const { page = 1, limit = 20 } = pagination;
+    const allConditions = search
+      ? [
+          { ...(search ? { fullName: Like(`%${search}%`) } : {}) },
+          { ...(search ? { email: Like(`%${search}%`) } : {}) },
+        ]
+      : {};
+    const totalAdminUsers = await this.adminUserRepository.countBy(
+      allConditions,
+    );
+    const adminUsers = await this.adminUserRepository.find({
+      where: allConditions,
+      order: {
+        createdAt: OrderDir.DESC,
+      },
+      skip: limit * (page - 1),
+      take: limit,
+    });
+    return buildResponseDataWithPagination(adminUsers, totalAdminUsers, {
+      page,
+      limit,
+    });
+  }
+
+  async fetchCategories(search: string, pagination: PaginationInput) {
+    const { page = 1, limit = 20 } = pagination;
     const allConditions = search
       ? [
           {
@@ -421,20 +446,29 @@ export class AdminService {
           },
         ]
       : {};
+    const totalCategories = await this.subCategoryRepository.countBy(
+      allConditions,
+    );
     const categories = await this.subCategoryRepository.find({
       where: allConditions,
       order: {
         createdAt: OrderDir.DESC,
       },
+      skip: limit * (page - 1),
+      take: limit,
     });
-    return categories;
+    return buildResponseDataWithPagination(categories, totalCategories, {
+      page,
+      limit,
+    });
   }
 
   async fetchSubCategories(id: number) {
     return this.subCategoryRepository.findBy({ mainCategory: { id } });
   }
 
-  async fetchMainCategories(search: string) {
+  async fetchMainCategories(search: string, pagination: PaginationInput) {
+    const { page = 1, limit = 20 } = pagination;
     const allConditions = search
       ? [
           {
@@ -445,13 +479,21 @@ export class AdminService {
           },
         ]
       : {};
+    const totalCategories = await this.mainCategoryRepository.countBy(
+      allConditions,
+    );
     const categories = await this.mainCategoryRepository.find({
       where: allConditions,
       order: {
         createdAt: OrderDir.DESC,
       },
+      skip: limit * (page - 1),
+      take: limit,
     });
-    return categories;
+    return buildResponseDataWithPagination(categories, totalCategories, {
+      page,
+      limit,
+    });
   }
 
   async fetchCustomers(
@@ -491,8 +533,8 @@ export class AdminService {
           pagination.orderDir || OrderDir.DESC,
       },
       withDeleted: true,
-      // skip: limit * (page - 1),
-      // take: limit,
+      skip: limit * (page - 1),
+      take: limit,
     });
     return buildResponseDataWithPagination(customers, totalCustomers, {
       page,

@@ -104,11 +104,12 @@ export class OrderService {
   async fetchOrders(
     pagination: PaginationInput,
     filter: OrderFilter,
-    { userId }: IAuthContext,
+    { userId, store }: IAuthContext,
   ) {
     const { page = 1, limit = 20 } = pagination;
     const conditions = {
-      ...(userId ? { customer: { id: userId } } : {}),
+      ...(userId && !store ? { customer: { id: userId } } : {}),
+      ...(store ? { store: { id: store } } : {}),
       ...(filter?.status ? { status: filter?.status } : {}),
       ...(filter?.startDate
         ? { createdAt: MoreThanOrEqual(filter?.startDate) }

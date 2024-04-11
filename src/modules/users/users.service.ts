@@ -78,7 +78,9 @@ export class UsersService {
     if (!customer) throw new NotFoundException('Customer not found');
     const customerModel = this.customerRepository.create({
       id,
-      ...body,
+      ...(body.fullName ? { fullName: body.fullName } : {}),
+      ...(body.phone ? { phone: body.phone } : {}),
+      ...(body.email ? { email: body.email } : {}),
     });
     return this.customerRepository.save(customerModel);
   }

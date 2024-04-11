@@ -68,14 +68,22 @@ export class AdminController {
     return this.service.activateCustomer(id);
   }
 
+  @Put('edit-customer/:id')
+  editCustomer(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() body: UpdateCustomerDto,
+  ) {
+    return this.userService.updateCustomer(id, body);
+  }
+
   @Get()
   getHello(): string {
     return 'Welcome to The-Advertisers Admin!!!';
   }
 
   @Get('fetch-admins')
-  fetchAdmins() {
-    return this.service.fetchAdmins();
+  fetchAdmins(@Query() query: dtos.GeneralQuery) {
+    return this.service.fetchAdmins(query.search, query.pagination);
   }
 
   @Post()
@@ -268,12 +276,12 @@ export class AdminController {
 
   @Get('categories')
   fetchCategories(@Query() query: dtos.GeneralQuery) {
-    return this.service.fetchCategories(query.search);
+    return this.service.fetchCategories(query.search, query.pagination);
   }
 
   @Get('main-categories')
   fetchMainCategories(@Query() query: dtos.GeneralQuery) {
-    return this.service.fetchMainCategories(query.search);
+    return this.service.fetchMainCategories(query.search, query.pagination);
   }
 
   @Get('main-categories/:id/categories')
@@ -297,7 +305,7 @@ export class AdminController {
       query.filter,
       query.search,
       true,
-      true,
+      false,
     );
   }
 
