@@ -73,12 +73,41 @@ export class AdminService {
     fullName: string;
     email: string;
     password: string;
+    roleId: number;
   }) {
+    const roleExists = await this.adminRoleRepository.findOneBy({
+      id: user.roleId,
+    });
+    if (!roleExists) throw new NotFoundException('Role does not exist');
     const hashedPassword = await bcrypt.hash(user.password, 12);
     const userModel = this.adminUserRepository.create({
       fullName: user.fullName,
       email: user.email,
       password: hashedPassword,
+      role: { id: user.roleId },
+    });
+    return this.adminUserRepository.save(userModel);
+  }
+
+  async updateAdmin(
+    id: number,
+    user: {
+      fullName: string;
+      password: string;
+      roleId: number;
+    },
+  ) {
+    const roleExists = await this.adminRoleRepository.findOneBy({
+      id: user.roleId,
+    });
+    if (!roleExists) throw new NotFoundException('Role does not exist');
+    let hashedPassword = '';
+    if (user.password) hashedPassword = await bcrypt.hash(user.password, 12);
+    const userModel = this.adminUserRepository.create({
+      id,
+      ...(user.fullName ? { fullName: user.fullName } : {}),
+      ...(user.password ? { password: hashedPassword } : {}),
+      ...(user.roleId ? { role: { id: user.roleId } } : {}),
     });
     return this.adminUserRepository.save(userModel);
   }

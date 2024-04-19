@@ -18,13 +18,13 @@ import {
 import { PaginationInput } from 'src/base/dto';
 import { buildResponseDataWithPagination } from 'src/utils';
 import axios from 'axios';
-import { MonnifyConfig } from 'src/config/types/monnify.config';
+import { PaystackConfig } from 'src/config/types/paystack.config';
 import { ConfigService } from '@nestjs/config';
 import { v4 as uuidv4 } from 'uuid';
 
 @Injectable()
 export class OrderService {
-  private readonly monnifyConfig: MonnifyConfig;
+  private readonly paystackConfig: PaystackConfig;
 
   constructor(
     @InjectRepository(Order)
@@ -33,7 +33,8 @@ export class OrderService {
     private readonly paymentRepository: Repository<Payment>,
     private readonly configService: ConfigService,
   ) {
-    this.monnifyConfig = this.configService.get<MonnifyConfig>('monnifyConfig');
+    this.paystackConfig =
+      this.configService.get<PaystackConfig>('paystackConfig');
   }
 
   async verifyTransaction(transactionId: string, amount: number) {
@@ -41,30 +42,14 @@ export class OrderService {
       where: { transactionId: transactionId.toString() },
     });
     if (paymentExists) throw new ConflictException('Duplicate payment');
-    const response = await axios
-      .post(
-        `${this.monnifyConfig.baseUrl}/api/v1/auth/login`,
-        {},
-        {
-          auth: {
-            username: this.monnifyConfig.apiKey,
-            password: this.monnifyConfig.secretKey,
-          },
-        },
-      )
-      .catch((error) => {
-        error.response;
-        throw error;
-      });
-    const accessToken = response.data.responseBody.accessToken;
     const transResponse = await axios
       .get(
-        `${this.monnifyConfig.baseUrl}/api/v2/transactions/${encodeURIComponent(
+        `${this.paystackConfig.baseUrl}/transaction/verify/${encodeURIComponent(
           transactionId,
         )}`,
         {
           headers: {
-            Authorization: `Bearer ${accessToken}`,
+            Authorization: `Bearer ${this.paystackConfig.secretKey}`,
           },
         },
       )
@@ -72,18 +57,18 @@ export class OrderService {
         console.log(error.response);
         throw error;
       });
-    const data = transResponse.data.responseBody;
+    const data = transResponse.data.data;
     if (
-      data.paymentStatus.toLowerCase() !== 'paid' ||
-      +data.amountPaid !== amount
+      data.status.toLowerCase() !== 'success' ||
+      +data.amount / 100 !== amount
     ) {
       const paymentModel = this.paymentRepository.create({
         transactionId: transactionId.toString(),
         metadata: JSON.stringify(data),
         type: PaymentType.INCOMING,
         amount,
-        channel: data.paymentMethod,
-        status: 'failed',
+        channel: data.channel,
+        status: data.status,
         currencies: Currencies.NGN,
       });
       await this.paymentRepository.save(paymentModel);
@@ -94,8 +79,8 @@ export class OrderService {
       metadata: JSON.stringify(data),
       type: PaymentType.INCOMING,
       amount,
-      channel: data.paymentMethod,
-      status: data.paymentStatus,
+      channel: data.channel,
+      status: data.status,
       currencies: Currencies.NGN,
     });
     return this.paymentRepository.save(paymentModel);

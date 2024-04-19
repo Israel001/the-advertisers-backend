@@ -2,7 +2,7 @@ import { registerAs } from '@nestjs/config';
 import { RedisConfig } from './types/redis.config';
 import { JwtAuthConfig } from './types/jwt-auth.config';
 import { SmtpConfig } from './types/smtp.config';
-import { MonnifyConfig } from './types/monnify.config';
+import { PaystackConfig } from './types/paystack.config';
 import { PaymentProviderConfig } from './types/payments.config';
 import { PaymentProviderType } from 'src/types';
 
@@ -37,13 +37,13 @@ export const SmtpConfiguration = registerAs(
   }),
 );
 
-export const MonnifyConfiguration = registerAs(
-  'monnifyConfig',
-  (): MonnifyConfig => ({
-    secretKey: process.env.MONNIFY_SECRET_KEY,
-    baseUrl: process.env.MONNIFY_BASE_URL,
-    apiKey: process.env.MONNIFY_API_KEY,
-    accountNumber: process.env.MONNIFY_ACCOUNT_NUMBER,
+export const PaystackConfiguration = registerAs(
+  'paystackConfig',
+  (): PaystackConfig => ({
+    secretKey: process.env.PAYSTACK_SECRET_KEY,
+    baseUrl: process.env.PAYSTACK_BASE_URL,
+    publicKey: process.env.PAYSTACK_PUBLIC_KEY,
+    reference: process.env.PAYSTACK_REFERENCE,
   }),
 );
 

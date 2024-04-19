@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Order, Payment } from './order.entity';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { JwtAuthConfiguration, MonnifyConfiguration } from 'src/config/configuration';
+import { JwtAuthConfiguration, PaystackConfiguration } from 'src/config/configuration';
 import { JwtModule } from '@nestjs/jwt';
 import { JwtAuthConfig } from 'src/config/types/jwt-auth.config';
 import { OrderController } from './order.controller';
@@ -12,7 +12,7 @@ import { OrderService } from './order.service';
   imports: [
     TypeOrmModule.forFeature([Order, Payment]),
     ConfigModule.forRoot({
-      load: [JwtAuthConfiguration, MonnifyConfiguration],
+      load: [JwtAuthConfiguration, PaystackConfiguration],
     }),
     JwtModule.registerAsync({
       imports: [ConfigModule.forRoot({ load: [JwtAuthConfiguration] })],

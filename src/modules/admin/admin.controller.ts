@@ -104,9 +104,29 @@ export class AdminController {
   @Post()
   @AdminRole({ roles: ['Super Admin'] })
   createAdmin(
-    @Body() body: { fullName: string; email: string; password: string },
+    @Body()
+    body: {
+      fullName: string;
+      email: string;
+      password: string;
+      roleId: number;
+    },
   ) {
     return this.service.createAdmin(body);
+  }
+
+  @Put(':id')
+  @AdminRole({ roles: ['Super Admin'] })
+  updateAdmin(
+    @Param('id', ParseIntPipe) id: number,
+    @Body()
+    body: {
+      fullName: string;
+      password: string;
+      roleId: number;
+    },
+  ) {
+    return this.service.updateAdmin(id, body);
   }
 
   @Post('category/:id/subCategory')
