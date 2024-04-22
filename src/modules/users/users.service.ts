@@ -21,7 +21,7 @@ import { Lga } from 'src/entities/lga.entity';
 import { State } from 'src/entities/state.entity';
 import { SharedService } from '../shared/shared.service';
 import { nanoid } from 'nanoid';
-import { IAuthContext, UserRoles, UserType } from 'src/types';
+import { IAuthContext, OrderDir, UserRoles, UserType } from 'src/types';
 import * as bcrypt from 'bcryptjs';
 import {
   CreateAddressDto,
@@ -324,8 +324,9 @@ export class UsersService {
       const userWishlist = await this.wishlistRepository.findOneBy({
         customer: { id: userId },
       });
-      const userOrders = await this.orderRepository.findBy({
-        customer: { id: userId },
+      const userOrders = await this.orderRepository.find({
+        where: { customer: { id: userId } },
+        order: { createdAt: OrderDir.DESC },
       });
       const userAddresses = await this.addressRepository.findBy({
         customer: { id: userId },

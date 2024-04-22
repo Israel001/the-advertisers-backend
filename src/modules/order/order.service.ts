@@ -125,7 +125,7 @@ export class OrderService {
     });
     if (!payment)
       throw new NotFoundException('Provided payment does not exist');
-    if (!payment.status.toLowerCase().includes('paid')) {
+    if (!payment.status.toLowerCase().includes('success')) {
       throw new NotAcceptableException('Provided payment is not valid');
     }
     const existingOrder = await this.orderRepository.findOneBy({
