@@ -14,6 +14,10 @@ export class UpdateAddressDto {
 
   @IsString()
   @IsOptional()
+  name: string;
+
+  @IsString()
+  @IsOptional()
   street: string;
 
   @IsString()
@@ -44,6 +48,9 @@ export class UpdateCustomerDto {
 export class CreateAddressDto {
   @IsNumber()
   stateId: number;
+
+  @IsString()
+  name: string;
 
   @IsString()
   street: string;

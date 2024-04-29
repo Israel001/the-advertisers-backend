@@ -7,6 +7,7 @@ import {
   ParseIntPipe,
   Post,
   Put,
+  Query,
   Req,
   UseGuards,
 } from '@nestjs/common';
@@ -26,6 +27,7 @@ import { Role } from 'src/decorators/roles.decorator';
 import { StoreGuard } from 'src/guards/store-guard';
 import { RoleGuard } from 'src/guards/role-guard';
 import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
+import { PaginationInput } from 'src/base/dto';
 
 @Controller('users')
 @ApiTags('users')
@@ -42,6 +44,12 @@ export class UsersController {
   @UseGuards(JwtAuthGuard)
   createNewAddress(@Body() body: CreateAddressDto, @Req() request: Request) {
     return this.usersService.createNewAddress(body, request.user as any);
+  }
+
+  @Post('/customer/address/:id/main-address')
+  @UseGuards(JwtAuthGuard)
+  setAsMainAddress(@Param('id', ParseIntPipe) id: number, @Req() request: Request) {
+    return this.usersService.setAsMainAddress(id, request.user as any);
   }
 
   @Put('/customer/address/:id')
@@ -94,8 +102,11 @@ export class UsersController {
 
   @Get()
   @UseGuards(JwtAuthGuard)
-  getUserDetails(@Req() request: Request) {
-    return this.usersService.getUserDetails(request.user as any);
+  getUserDetails(
+    @Req() request: Request,
+    @Query('pagination') pagination: PaginationInput,
+  ) {
+    return this.usersService.getUserDetails(request.user as any, pagination);
   }
 
   @Post('/store/invite')

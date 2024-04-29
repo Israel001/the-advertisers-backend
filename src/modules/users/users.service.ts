@@ -32,9 +32,10 @@ import {
   UpdateCustomerDto,
   UpdateStoreDto,
 } from './users.dto';
-import { generateOtp } from 'src/utils';
+import { buildResponseDataWithPagination, generateOtp } from 'src/utils';
 import { Order } from '../order/order.entity';
 import { Reviews } from '../products/products.entity';
+import { PaginationInput } from 'src/base/dto';
 
 @Injectable()
 export class UsersService {
@@ -165,11 +166,45 @@ export class UsersService {
   }
 
   async deleteAddress(id: number, { userId }: IAuthContext) {
-    const addressExists = await this.addressRepository.findOneBy({ id });
+    const addressExists = await this.addressRepository.findOne({
+      where: { id },
+      relations: ['customer'],
+    });
     if (!addressExists) throw new NotFoundException('Address not found');
     if (addressExists.customer.id !== userId)
       throw new UnauthorizedException('Not authorized to delete this address');
+    if (addressExists.isMainAddress)
+      throw new ForbiddenException('Not allowed to delete main address');
     return this.addressRepository.softDelete({ id });
+  }
+
+  async setAsMainAddress(id: number, { userId }: IAuthContext) {
+    const addressExists = await this.addressRepository.findOne({
+      where: { id },
+      relations: ['customer'],
+    });
+    if (!addressExists) throw new NotFoundException('Address not found');
+    if (addressExists.customer.id !== userId)
+      throw new UnauthorizedException('Not authorized to update this address');
+    if (addressExists.isMainAddress) return;
+    const previousMainAddress = await this.addressRepository.findOneBy({
+      customer: { id: userId },
+      isMainAddress: true,
+    });
+    if (previousMainAddress) {
+      await this.addressRepository.save(
+        this.addressRepository.create({
+          id: previousMainAddress.id,
+          isMainAddress: false,
+        }),
+      );
+    }
+    await this.addressRepository.save(
+      this.addressRepository.create({
+        id: addressExists.id,
+        isMainAddress: true,
+      }),
+    );
   }
 
   async updateAddress(
@@ -177,7 +212,10 @@ export class UsersService {
     address: UpdateAddressDto,
     { userId }: IAuthContext,
   ) {
-    const addressExists = await this.addressRepository.findOneBy({ id });
+    const addressExists = await this.addressRepository.findOne({
+      where: { id },
+      relations: ['customer'],
+    });
     if (!addressExists) throw new NotFoundException('Address not found');
     if (addressExists.customer.id !== userId)
       throw new UnauthorizedException('Not authorized to update this address');
@@ -188,6 +226,7 @@ export class UsersService {
       id,
       ...address,
       state: { id: address.stateId },
+      name: address.name,
       street: address.street,
       landmark: address.landmark,
       houseNo: address.houseNo,
@@ -199,11 +238,17 @@ export class UsersService {
   }
 
   async createNewAddress(address: CreateAddressDto, { userId }: IAuthContext) {
+    const addressCount = await this.addressRepository.findBy({
+      customer: { id: userId },
+    });
+    if (addressCount.length >= 4)
+      throw new ForbiddenException('Not allowed to have more than 4 addresses');
     const state = await this.stateRepository.findOne({
       where: { id: address.stateId },
     });
     const addressModel = this.addressRepository.create({
       customer: { id: userId },
+      name: address.name,
       state: { id: address.stateId },
       street: address.street,
       landmark: address.landmark,
@@ -312,7 +357,14 @@ export class UsersService {
     return this.roleRepository.find();
   }
 
-  async getUserDetails({ userId, type }: IAuthContext) {
+  async getUserDetails(
+    { userId, type }: IAuthContext,
+    pagination: PaginationInput,
+  ) {
+    const { page = 1, limit = 20 } = pagination;
+    const totalOrders = await this.orderRepository.countBy({
+      customer: { id: userId },
+    });
     const userInDB =
       type === UserType.CUSTOMER
         ? await this.customerRepository.findOneBy({ id: userId })
@@ -327,6 +379,8 @@ export class UsersService {
       const userOrders = await this.orderRepository.find({
         where: { customer: { id: userId } },
         order: { createdAt: OrderDir.DESC },
+        skip: limit * (page - 1),
+        take: limit,
       });
       const userAddresses = await this.addressRepository.findBy({
         customer: { id: userId },
@@ -336,7 +390,14 @@ export class UsersService {
       });
       userInDB['cart'] = userCart ? JSON.parse(userCart.data) : [];
       userInDB['wishlist'] = userWishlist ? JSON.parse(userWishlist.data) : [];
-      userInDB['orders'] = userOrders;
+      userInDB['orders'] = buildResponseDataWithPagination(
+        userOrders,
+        totalOrders,
+        {
+          page,
+          limit,
+        },
+      );
       userInDB['addresses'] = userAddresses;
       userInDB['reviews'] = userReviews;
     }

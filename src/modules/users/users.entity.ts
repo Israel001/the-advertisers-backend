@@ -54,6 +54,10 @@ export class Addresses extends BaseEntity {
   @AutoMap()
   id: number;
 
+  @Column()
+  @AutoMap()
+  name: string;
+
   @ManyToOne(() => Customer)
   @AutoMap()
   customer: Customer;
