@@ -37,6 +37,12 @@ export class OrderController {
     );
   }
 
+  @Get(':id')
+  @UseGuards(JwtAuthGuard)
+  fetchById(@Param('id', ParseIntPipe) id: number, @Req() request: Request) {
+    return this.orderService.fetchOrderById(id, request.user as any);
+  }
+
   @Post('/verify-transaction/:transactionId')
   @UseGuards(JwtAuthGuard)
   verifyPayment(

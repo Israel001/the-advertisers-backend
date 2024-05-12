@@ -333,6 +333,12 @@ export class AdminController {
     return this.service.fetchMainCategories(query.search, query.pagination);
   }
 
+  @Get('all-main-categories')
+  @AdminRole({ roles: ['Super Admin', 'Admin', 'Editor', 'User'] })
+  fetchAllMainCategories() {
+    return this.service.fetchAllMainCategories();
+  }
+    
   @Get('main-categories/:id/categories')
   @AdminRole({ roles: ['Super Admin', 'Admin', 'Editor', 'User'] })
   fetchSubCategories(@Param('id', ParseIntPipe) id: number) {

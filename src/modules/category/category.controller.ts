@@ -63,6 +63,16 @@ export class CategoryController {
     return this.service.fetchMainCategories(query.pagination, query.search);
   }
 
+  @Get(':id/all-sub-categories')
+  fetchAllSubCategories(@Param('id', ParseIntPipe) id: number) {
+    return this.service.fetchAllSubCategories(id);
+  }
+
+  @Get('all-main-categories')
+  fetchAllMainCategories() {
+    return this.service.fetchAllMainCategories();
+  }
+
   @Get(':id/sub-categories')
   fetchSubCategories(
     @Param('id', ParseIntPipe) id: number,

@@ -10,6 +10,9 @@ export class CreateOrderDto {
 
   @IsNumber()
   paymentId: number;
+
+  @IsString()
+  stores: string;
 }
 
 export class OrderFilter {

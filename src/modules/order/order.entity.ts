@@ -53,6 +53,10 @@ export class Order extends BaseEntity {
   @AutoMap()
   customer: Customer;
 
+  @Column()
+  @AutoMap()
+  stores: string;
+
   @Column('longtext')
   @AutoMap()
   details: string;

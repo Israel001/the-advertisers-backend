@@ -61,11 +61,25 @@ export class ProductsService {
     );
   }
 
-  async fetchProductById(id: number) {
+  async fetchStoreProductById(id: number, storeId: number) {
     const product = await this.productRepository.findOne({
-      where: { id },
+      where: { id, store: { id: storeId } },
       relations: ['category', 'mainCategory', 'store'],
     });
+    if (!product) throw new NotFoundException('Product not found');
+    const reviews = await this.reviewRepository.findOneBy({
+      product: { id },
+    });
+    product['reviews'] = reviews;
+    return product;
+  }
+
+  async fetchProductById(id: number) {
+    const product = await this.productRepository.findOne({
+      where: { id, published: true },
+      relations: ['category', 'mainCategory', 'store'],
+    });
+    if (!product) throw new NotFoundException('Product not found');
     const totalProductInStore = await this.productRepository.countBy({
       store: { id: product.store.id },
     });

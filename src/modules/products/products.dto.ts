@@ -14,31 +14,31 @@ import { PaginationInput } from 'src/base/dto';
 export class ProductFilter {
   @IsOptional()
   @IsBooleanString()
-  outOfStock: string;
+  outOfStock?: string;
 
   @IsOptional()
   @IsNumberString()
-  minPrice: string;
+  minPrice?: string;
 
   @IsOptional()
   @IsNumberString()
-  maxPrice: string;
+  maxPrice?: string;
 
   @IsOptional()
   @IsNumberString()
-  avgRating: string;
+  avgRating?: string;
 
   @IsOptional()
   @IsNumberString()
-  storeId: string;
+  storeId?: string;
 
   @IsOptional()
   @IsNumberString()
-  mainCategoryId: string;
+  mainCategoryId?: string;
 
   @IsOptional()
   @IsBooleanString()
-  published: string;
+  published?: string;
 }
 
 export class ProductQuery {

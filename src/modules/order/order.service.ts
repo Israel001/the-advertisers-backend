@@ -5,7 +5,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { LessThanOrEqual, MoreThanOrEqual, Repository } from 'typeorm';
+import { LessThanOrEqual, Like, MoreThanOrEqual, Repository } from 'typeorm';
 import { Order, Payment } from './order.entity';
 import { CreateOrderDto, OrderFilter } from './order.dto';
 import {
@@ -86,15 +86,19 @@ export class OrderService {
     return this.paymentRepository.save(paymentModel);
   }
 
+  async fetchOrderById(id: number, { userId }: IAuthContext) {
+    return this.orderRepository.findOneBy({ id, customer: { id: userId } });
+  }
+
   async fetchOrders(
     pagination: PaginationInput,
     filter: OrderFilter,
     { userId, store }: IAuthContext,
   ) {
-    const { page = 1, limit = 20 } = pagination;
+    const { page = 1, limit = 10 } = pagination;
     const conditions = {
       ...(userId && !store ? { customer: { id: userId } } : {}),
-      ...(store ? { store: { id: store } } : {}),
+      ...(store ? { stores: Like(`%${store.id}%`) } : {}),
       ...(filter?.status ? { status: filter?.status } : {}),
       ...(filter?.startDate
         ? { createdAt: MoreThanOrEqual(filter?.startDate) }
@@ -137,6 +141,7 @@ export class OrderService {
       customer: { id: userId },
       details: order.details,
       payment: { id: order.paymentId },
+      stores: order.stores,
       status: OrderStatus.PENDING,
       reference: uuidv4(),
     });

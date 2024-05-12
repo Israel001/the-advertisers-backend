@@ -62,22 +62,29 @@ export class ProductsController {
     );
   }
 
-  @Get(':id')
-  fetchById(@Param('id', ParseIntPipe) id: number) {
-    return this.productsService.fetchProductById(id);
-  }
-
   @Get('store-products')
   @UseGuards(JwtAuthGuard, StoreGuard)
   fetchStoreProducts(@Query() query: ProductQuery, @Req() request: Request) {
     const { store } = request.user as IAuthContext;
-    query.filter.storeId = store.id.toString();
+    query.filter = { storeId: store.id.toString() };
     return this.productsService.fetchProducts(
       query.pagination,
       query.filter,
       query.search,
       true,
     );
+  }
+
+  @Get('store-products/:id')
+  @UseGuards(JwtAuthGuard, StoreGuard)
+  fetchStoreProductById(@Param('id', ParseIntPipe) id: number, @Req() request: Request) {
+    const { store } = request.user as IAuthContext;
+    return this.productsService.fetchStoreProductById(id, store.id);
+  }
+
+  @Get(':id')
+  fetchById(@Param('id', ParseIntPipe) id: number) {
+    return this.productsService.fetchProductById(id);
   }
 
   @Put(':id')
@@ -171,10 +178,7 @@ export class ProductsController {
 
   @Delete('/review/:id')
   @UseGuards(JwtAuthGuard)
-  deleteReview(
-    @Param('id', ParseIntPipe) id: number,
-    @Req() request: Request,
-  ) {
+  deleteReview(@Param('id', ParseIntPipe) id: number, @Req() request: Request) {
     return this.productsService.deleteReview(id, request.user as any);
   }
 

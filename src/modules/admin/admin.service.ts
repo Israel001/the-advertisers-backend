@@ -498,6 +498,10 @@ export class AdminService {
     });
   }
 
+  async fetchAllMainCategories() {
+    return this.mainCategoryRepository.findBy({});
+  }
+
   async fetchSubCategories(id: number) {
     return this.subCategoryRepository.findBy({ mainCategory: { id } });
   }

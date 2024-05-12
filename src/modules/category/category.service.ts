@@ -21,8 +21,8 @@ export class CategoryService {
     private readonly mainCategoryRepository: Repository<MainCategory>,
     @InjectRepository(SubCategory)
     private readonly subCategoryRepository: Repository<SubCategory>,
-  ) { }
-  
+  ) {}
+
   private logger = new Logger(CategoryService.name);
 
   async createMainCategory(category: CreateCategoryDto) {
@@ -96,6 +96,10 @@ export class CategoryService {
     return this.subCategoryRepository.findOneBy({ id });
   }
 
+  async fetchAllMainCategories() {
+    return this.mainCategoryRepository.findBy({});
+  }
+
   async fetchMainCategories(pagination: PaginationInput, search: string) {
     const { page = 1, limit = 20 } = pagination;
     const totalCategories = await this.mainCategoryRepository.countBy({
@@ -115,6 +119,12 @@ export class CategoryService {
     return buildResponseDataWithPagination(mainCategories, totalCategories, {
       page,
       limit,
+    });
+  }
+
+  async fetchAllSubCategories(mainCategoryId: number) {
+    return this.subCategoryRepository.findBy({
+      mainCategory: { id: mainCategoryId },
     });
   }
 
