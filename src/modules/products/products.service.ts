@@ -171,13 +171,13 @@ export class ProductsService {
   ) {
     const productExists = await this.productRepository.findOneBy({
       id,
-      ...(store ? { store } : {}),
+      ...(store ? { store: { id: store.id } } : {}),
     });
     if (!productExists) throw new NotFoundException('Product does not exist');
     const duplicateExists = await this.productRepository.findOneBy({
       id: Not(id),
       name: product.name,
-      store: productExists.store,
+      store: { id: productExists.store.id },
     });
     if (duplicateExists)
       throw new BadRequestException('Product name cannot be duplicate');
@@ -268,7 +268,7 @@ export class ProductsService {
   ) {
     const productExists = await this.productRepository.findOneBy({
       name: product.name,
-      store,
+      store: { id: store.id },
     });
     if (productExists)
       throw new BadRequestException('Product name cannot be duplicate');
@@ -293,9 +293,10 @@ export class ProductsService {
   }
 
   async deleteProduct(id: number, { userId, store }: IAuthContext) {
+    console.log(store, id);
     const productExists = await this.productRepository.findOneBy({
       id,
-      store,
+      store: { id: store.id },
     });
     if (!productExists) throw new NotFoundException('Product does not exist');
     const productModel = this.productRepository.create({
