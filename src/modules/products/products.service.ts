@@ -169,9 +169,12 @@ export class ProductsService {
     product: UpdateProductDto,
     { userId, store }: IAuthContext,
   ) {
-    const productExists = await this.productRepository.findOneBy({
-      id,
-      ...(store ? { store: { id: store.id } } : {}),
+    const productExists = await this.productRepository.findOne({
+      where: {
+        id,
+        ...(store ? { store: { id: store.id } } : {}),
+      },
+      relations: ['store'],
     });
     if (!productExists) throw new NotFoundException('Product does not exist');
     const duplicateExists = await this.productRepository.findOneBy({
@@ -293,7 +296,6 @@ export class ProductsService {
   }
 
   async deleteProduct(id: number, { userId, store }: IAuthContext) {
-    console.log(store, id);
     const productExists = await this.productRepository.findOneBy({
       id,
       store: { id: store.id },

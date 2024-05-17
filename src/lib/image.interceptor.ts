@@ -14,12 +14,14 @@ export class ImageInterceptor implements NestInterceptor {
   ): Observable<any> {
     const request = context.switchToHttp().getRequest();
     // extract files into the request body as processable object
-    Object.entries(request.files).forEach(([k, v]) => {
-      request.body[k] =
-        (v as any).length > 1 || k === 'images'
-          ? (v as any).map((e: any) => e.filename).join(',')
-          : v[0].filename;
-    });
+    if (request.files) {
+      Object.entries(request.files).forEach(([k, v]) => {
+        request.body[k] =
+          (v as any).length > 1 || k === 'images'
+            ? (v as any).map((e: any) => e.filename).join(',')
+            : v[0].filename;
+      });
+    }
     return next.handle();
   }
 }
