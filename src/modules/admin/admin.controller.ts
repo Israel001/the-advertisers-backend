@@ -30,7 +30,7 @@ import { FileFieldsInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { nanoid } from 'nanoid';
 import { ImageInterceptor } from 'src/lib/image.interceptor';
-import { OrderQuery } from '../order/order.dto';
+import { OrderQuery, UpdateOrderDto } from '../order/order.dto';
 import { OrderService } from '../order/order.service';
 import { IAuthContext, OrderStatus } from 'src/types';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
@@ -338,7 +338,7 @@ export class AdminController {
   fetchAllMainCategories() {
     return this.service.fetchAllMainCategories();
   }
-    
+
   @Get('main-categories/:id/categories')
   @AdminRole({ roles: ['Super Admin', 'Admin', 'Editor', 'User'] })
   fetchSubCategories(@Param('id', ParseIntPipe) id: number) {
@@ -385,6 +385,15 @@ export class AdminController {
       query.filter,
       {} as any,
     );
+  }
+
+  @Put('update-order-product-status/:id')
+  @AdminRole({ roles: ['Super Admin', 'Admin', 'Editor'] })
+  updateOrderProductStatus(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() body: UpdateOrderDto,
+  ) {
+    return this.service.updateOrderProductStatus(id, body);
   }
 
   @Put('order/:id/:status')

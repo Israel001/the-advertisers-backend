@@ -16,7 +16,7 @@ import {
   StoreUsers,
   Wishlist,
 } from './users.entity';
-import { Repository } from 'typeorm';
+import { Like, Repository } from 'typeorm';
 import { Lga } from 'src/entities/lga.entity';
 import { State } from 'src/entities/state.entity';
 import { SharedService } from '../shared/shared.service';
@@ -358,18 +358,37 @@ export class UsersService {
   }
 
   async getUserDetails(
-    { userId, type }: IAuthContext,
+    { userId, type, store }: IAuthContext,
     pagination: PaginationInput,
   ) {
     const { page = 1, limit = 20 } = pagination;
-    const totalOrders = await this.orderRepository.countBy({
-      customer: { id: userId },
-    });
     const userInDB =
       type === UserType.CUSTOMER
         ? await this.customerRepository.findOneBy({ id: userId })
         : await this.storeUserRepository.findOneBy({ id: userId });
+    if (type === UserType.STORE) {
+      const totalOrders = await this.orderRepository.countBy({
+        stores: Like(`%${store.id}%`),
+      });
+      const userOrders = await this.orderRepository.find({
+        where: { stores: Like(`%${store.id}%`) },
+        order: { createdAt: OrderDir.DESC },
+        skip: limit * (page - 1),
+        take: limit,
+      });
+      userInDB['orders'] = buildResponseDataWithPagination(
+        userOrders,
+        totalOrders,
+        {
+          page,
+          limit,
+        },
+      );
+    }
     if (type === UserType.CUSTOMER) {
+      const totalOrders = await this.orderRepository.countBy({
+        customer: { id: userId },
+      });
       const userCart = await this.cartRepository.findOneBy({
         customer: { id: userId },
       });

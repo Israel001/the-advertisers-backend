@@ -32,6 +32,7 @@ import { buildResponseDataWithPagination } from 'src/utils';
 import fs from 'fs';
 import path, { dirname } from 'path';
 import { MainCategory, SubCategory } from '../category/category.entity';
+import { UpdateOrderDto } from '../order/order.dto';
 
 @Injectable()
 export class AdminService {
@@ -270,6 +271,24 @@ export class AdminService {
       image: slider,
     });
     return this.sliderRepository.save(sliderModel);
+  }
+
+  async updateOrderProductStatus(id: number, body: UpdateOrderDto) {
+    const order = await this.orderRepository.findOneBy({ id });
+    if (!order) throw new NotFoundException('Order not found');
+    const orderDetails = JSON.parse(order.details);
+    orderDetails.cart = orderDetails.cart.map((c) => {
+      if (body.products.includes(c.id)) {
+        c.status = body.status;
+      }
+      return c;
+    });
+    await this.orderRepository.save(
+      this.orderRepository.create({
+        id,
+        details: JSON.stringify(orderDetails),
+      }),
+    );
   }
 
   async updateOrderStatus(id: number, status: OrderStatus) {

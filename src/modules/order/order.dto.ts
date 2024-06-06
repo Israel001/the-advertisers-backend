@@ -1,8 +1,15 @@
-import { Type } from "class-transformer";
-import { IsEnum, IsNumber, IsOptional, IsString, ValidateNested } from "class-validator";
-import { PaginationInput } from "src/base/dto";
-import { IsValidDate } from "src/tools/date-validator";
-import { OrderStatus } from "src/types";
+import { Type } from 'class-transformer';
+import {
+  IsArray,
+  IsEnum,
+  IsNumber,
+  IsOptional,
+  IsString,
+  ValidateNested,
+} from 'class-validator';
+import { PaginationInput } from 'src/base/dto';
+import { IsValidDate } from 'src/tools/date-validator';
+import { OrderStatus } from 'src/types';
 
 export class CreateOrderDto {
   @IsString()
@@ -13,6 +20,14 @@ export class CreateOrderDto {
 
   @IsString()
   stores: string;
+}
+
+export class UpdateOrderDto {
+  @IsArray()
+  products: number[];
+
+  @IsString()
+  status: string;
 }
 
 export class OrderFilter {

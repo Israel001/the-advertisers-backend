@@ -7,7 +7,7 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { LessThanOrEqual, Like, MoreThanOrEqual, Repository } from 'typeorm';
 import { Order, Payment } from './order.entity';
-import { CreateOrderDto, OrderFilter } from './order.dto';
+import { CreateOrderDto, OrderFilter, UpdateOrderDto } from './order.dto';
 import {
   Currencies,
   IAuthContext,
@@ -35,6 +35,27 @@ export class OrderService {
   ) {
     this.paystackConfig =
       this.configService.get<PaystackConfig>('paystackConfig');
+  }
+
+  async updateOrder(id: number, body: UpdateOrderDto, { store }: IAuthContext) {
+    const order = await this.orderRepository.findOneBy({
+      id,
+      stores: Like(`%${store.id}%`),
+    });
+    if (!order) throw new NotFoundException('Order not found');
+    const orderDetails = JSON.parse(order.details);
+    orderDetails.cart = orderDetails.cart.map((c) => {
+      if (body.products.includes(c.id)) {
+        c.status = body.status;
+      }
+      return c;
+    });
+    await this.orderRepository.save(
+      this.orderRepository.create({
+        id,
+        details: JSON.stringify(orderDetails),
+      }),
+    );
   }
 
   async verifyTransaction(transactionId: string, amount: number) {
@@ -86,8 +107,12 @@ export class OrderService {
     return this.paymentRepository.save(paymentModel);
   }
 
-  async fetchOrderById(id: number, { userId }: IAuthContext) {
-    return this.orderRepository.findOneBy({ id, customer: { id: userId } });
+  async fetchOrderById(id: number, { userId, store }: IAuthContext) {
+    return this.orderRepository.findOneBy({
+      id,
+      ...(userId && !store ? { customer: { id: userId } } : {}),
+      ...(store ? { stores: Like(`%${store.id}%`) } : {}),
+    });
   }
 
   async fetchOrders(

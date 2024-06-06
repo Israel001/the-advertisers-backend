@@ -57,13 +57,15 @@ export enum Currencies {
 
 export enum OrderStatus {
   PENDING = 'PENDING',
+  PACKED_AND_READY_TO_SEND = 'PACKED_AND_READY_TO_SEND',
+  SENT_FOR_DELIVERY = 'SENT_FOR_DELIVERY',
   IN_PROGRESS = 'IN_PROGRESS',
   DELIVERED = 'DELIVERED',
   CANCELED = 'CANCELED',
 }
 
 export enum PaymentProviderType {
-  MONNIFY = 'MONNIFY'
+  MONNIFY = 'MONNIFY',
 }
 
 export interface IAdminAuthContext {

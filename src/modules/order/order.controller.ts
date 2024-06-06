@@ -5,12 +5,13 @@ import {
   Param,
   ParseIntPipe,
   Post,
+  Put,
   Query,
   Req,
   UseGuards,
 } from '@nestjs/common';
 import { JwtAuthGuard } from 'src/guards/jwt-auth-guard';
-import { CreateOrderDto, OrderQuery } from './order.dto';
+import { CreateOrderDto, OrderQuery, UpdateOrderDto } from './order.dto';
 import { Request } from 'express';
 import { OrderService } from './order.service';
 import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
@@ -25,6 +26,16 @@ export class OrderController {
   @UseGuards(JwtAuthGuard)
   create(@Body() body: CreateOrderDto, @Req() request: Request) {
     return this.orderService.createOrder(body, request.user as any);
+  }
+
+  @Put(':id')
+  @UseGuards(JwtAuthGuard)
+  updateOrder(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() body: UpdateOrderDto,
+    @Req() request: Request,
+  ) {
+    return this.orderService.updateOrder(id, body, request.user as any);
   }
 
   @Get()

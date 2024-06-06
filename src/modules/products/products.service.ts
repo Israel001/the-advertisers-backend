@@ -108,9 +108,9 @@ export class ProductsService {
   ) {
     const { page = 1, limit = 20 } = pagination;
     const baseConditions = {
-      ...(filter?.published && showUnpublishedProducts
-        ? { published: filter?.published === 'true' }
-        : { published: true }),
+      ...(showUnpublishedProducts
+        ? {}
+        : { published: filter?.published === 'true' }),
       ...(filter?.outOfStock
         ? { outOfStock: filter?.outOfStock === 'true' }
         : {}),
