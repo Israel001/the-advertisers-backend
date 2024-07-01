@@ -400,7 +400,7 @@ export class AdminController {
   @AdminRole({ roles: ['Super Admin', 'Admin', 'Editor'] })
   updateOrderStatus(
     @Param('id', ParseIntPipe) id: number,
-    @Query('status', new ParseEnumPipe(OrderStatus))
+    @Param('status', new ParseEnumPipe(OrderStatus))
     status: OrderStatus,
   ) {
     return this.service.updateOrderStatus(id, status);

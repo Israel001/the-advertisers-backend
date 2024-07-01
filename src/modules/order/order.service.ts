@@ -54,6 +54,7 @@ export class OrderService {
       this.orderRepository.create({
         id,
         details: JSON.stringify(orderDetails),
+        status: OrderStatus.IN_PROGRESS,
       }),
     );
   }

@@ -77,7 +77,10 @@ export class ProductsController {
 
   @Get('store-products/:id')
   @UseGuards(JwtAuthGuard, StoreGuard)
-  fetchStoreProductById(@Param('id', ParseIntPipe) id: number, @Req() request: Request) {
+  fetchStoreProductById(
+    @Param('id', ParseIntPipe) id: number,
+    @Req() request: Request,
+  ) {
     const { store } = request.user as IAuthContext;
     return this.productsService.fetchStoreProductById(id, store.id);
   }

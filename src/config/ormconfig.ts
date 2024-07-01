@@ -26,7 +26,7 @@ const config: TypeOrmModuleOptions = {
     connectionLimit: 100,
   },
   migrationsRun: true,
-  logging: false,
+  logging: true,
   logger: 'advanced-console',
   migrations: [path.join(__dirname, '..', '/migrations/**/*{.ts,.js}')],
 };

@@ -39,7 +39,7 @@ export class Payment extends BaseEntity {
   currencies: Currencies;
 }
 
-@Entity('orders', { synchronize: false })
+@Entity('orders', { synchronize: true })
 export class Order extends BaseEntity {
   @PrimaryGeneratedColumn()
   @AutoMap()

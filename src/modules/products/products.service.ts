@@ -19,13 +19,17 @@ import {
   Like,
   MoreThanOrEqual,
   Not,
+  Raw,
   Repository,
 } from 'typeorm';
 import { IAuthContext, OrderDir } from 'src/types';
 import { PaginationInput } from 'src/base/dto';
 import fs from 'fs';
 import path, { dirname } from 'path';
-import { buildResponseDataWithPagination } from 'src/utils';
+import {
+  buildResponseDataWithPagination,
+  underscoreKeysToCamelCase,
+} from 'src/utils';
 import { MainCategory, SubCategory } from '../category/category.entity';
 
 @Injectable()
@@ -45,19 +49,19 @@ export class ProductsService {
 
   async fetchTopSellingProducts() {
     return this.productRepository.query(
-      `SELECT * FROM products ORDER BY RAND() LIMIT 4`,
+      `SELECT * FROM products WHERE published = '1' AND deleted_at IS NULL ORDER BY RAND() LIMIT 4`,
     );
   }
 
   async fetchPopularSales() {
     return this.productRepository.query(
-      `SELECT * FROM products ORDER BY RAND() LIMIT 3`,
+      `SELECT * FROM products WHERE published = '1' AND deleted_at IS NULL ORDER BY RAND() LIMIT 3`,
     );
   }
 
   async fetchRandomCategories() {
     return this.productRepository.query(
-      `SELECT * FROM sub_categories ORDER BY RAND() LIMIT 12`,
+      `SELECT * FROM sub_categories WHERE deleted_at IS NULL ORDER BY RAND() LIMIT 12`,
     );
   }
 
@@ -79,7 +83,6 @@ export class ProductsService {
       where: { id, published: true },
       relations: ['category', 'mainCategory', 'store'],
     });
-    if (!product) throw new NotFoundException('Product not found');
     const totalProductInStore = await this.productRepository.countBy({
       store: { id: product.store.id },
     });

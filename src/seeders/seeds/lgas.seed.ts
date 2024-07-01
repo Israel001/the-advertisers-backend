@@ -709,6 +709,346 @@ export default class LgasSeed implements ISeeder {
         code: 'NG-AK',
       },
     },
+    {
+      strippedName: 'uyo',
+      name: 'Uyo',
+      code: 'LGA71',
+      state: {
+        strippedName: 'anambra',
+        name: 'Anambra',
+        code: 'NG-AN',
+      },
+    },
+    {
+      strippedName: 'uyo',
+      name: 'Uyo',
+      code: 'LGA72',
+      state: {
+        strippedName: 'bauchi',
+        name: 'Bauchi',
+        code: 'NG-BA',
+      },
+    },
+    {
+      strippedName: 'uyo',
+      name: 'Uyo',
+      code: 'LGA73',
+      state: {
+        strippedName: 'bayelsa',
+        name: 'Bayelsa',
+        code: 'NG-BA',
+      },
+    },
+    {
+      strippedName: 'uyo',
+      name: 'Uyo',
+      code: 'LGA74',
+      state: {
+        strippedName: 'benue',
+        name: 'Benue',
+        code: 'NG-BE',
+      },
+    },
+    {
+      strippedName: 'uyo',
+      name: 'Uyo',
+      code: 'LGA71',
+      state: {
+        strippedName: 'borno',
+        name: 'Borno',
+        code: 'NG-BO',
+      },
+    },
+    {
+      strippedName: 'uyo',
+      name: 'Uyo',
+      code: 'LGA71',
+      state: {
+        strippedName: 'crossriver',
+        name: 'Cross River',
+        code: 'NG-CR',
+      },
+    },
+    {
+      strippedName: 'uyo',
+      name: 'Uyo',
+      code: 'LGA71',
+      state: {
+        strippedName: 'delta',
+        name: 'Delta',
+        code: 'NG-DE',
+      },
+    },
+    {
+      strippedName: 'uyo',
+      name: 'Uyo',
+      code: 'LGA71',
+      state: {
+        strippedName: 'ebonyi',
+        name: 'Ebonyi',
+        code: 'NG-EB',
+      },
+    },
+    {
+      strippedName: 'uyo',
+      name: 'Uyo',
+      code: 'LGA71',
+      state: {
+        strippedName: 'edo',
+        name: 'Edo',
+        code: 'NG-ED',
+      },
+    },
+    {
+      strippedName: 'uyo',
+      name: 'Uyo',
+      code: 'LGA71',
+      state: {
+        strippedName: 'ekiti',
+        name: 'Ekiti',
+        code: 'NG-EK',
+      },
+    },
+    {
+      strippedName: 'uyo',
+      name: 'Uyo',
+      code: 'LGA71',
+      state: {
+        strippedName: 'enugu',
+        name: 'Enugu',
+        code: 'NG-EN',
+      },
+    },
+    {
+      strippedName: 'uyo',
+      name: 'Uyo',
+      code: 'LGA71',
+      state: {
+        strippedName: 'fct',
+        name: 'FCT',
+        code: 'NG-FC',
+      },
+    },
+    {
+      strippedName: 'uyo',
+      name: 'Uyo',
+      code: 'LGA71',
+      state: {
+        strippedName: 'gombe',
+        name: 'Gombe',
+        code: 'NG-GO',
+      },
+    },
+    {
+      strippedName: 'uyo',
+      name: 'Uyo',
+      code: 'LGA71',
+      state: {
+        strippedName: 'imo',
+        name: 'Imo',
+        code: 'NG-IM',
+      },
+    },
+    {
+      strippedName: 'uyo',
+      name: 'Uyo',
+      code: 'LGA71',
+      state: {
+        strippedName: 'jigawa',
+        name: 'Jigawa',
+        code: 'NG-JI',
+      },
+    },
+    {
+      strippedName: 'uyo',
+      name: 'Uyo',
+      code: 'LGA71',
+      state: {
+        strippedName: 'kaduna',
+        name: 'Kaduna',
+        code: 'NG-KD',
+      },
+    },
+    {
+      strippedName: 'uyo',
+      name: 'Uyo',
+      code: 'LGA71',
+      state: {
+        strippedName: 'kano',
+        name: 'Kano',
+        code: 'NG-KN',
+      },
+    },
+    {
+      strippedName: 'uyo',
+      name: 'Uyo',
+      code: 'LGA71',
+      state: {
+        strippedName: 'katsina',
+        name: 'Katsina',
+        code: 'NG-KA',
+      },
+    },
+    {
+      strippedName: 'uyo',
+      name: 'Uyo',
+      code: 'LGA71',
+      state: {
+        strippedName: 'kebbi',
+        name: 'Kebbi',
+        code: 'NG-KE',
+      },
+    },
+    {
+      strippedName: 'uyo',
+      name: 'Uyo',
+      code: 'LGA71',
+      state: {
+        strippedName: 'kogi',
+        name: 'Kogi',
+        code: 'NG-KO',
+      },
+    },
+    {
+      strippedName: 'uyo',
+      name: 'Uyo',
+      code: 'LGA71',
+      state: {
+        strippedName: 'kwara',
+        name: 'Kwara',
+        code: 'NG-KW',
+      },
+    },
+    {
+      strippedName: 'uyo',
+      name: 'Uyo',
+      code: 'LGA71',
+      state: {
+        strippedName: 'lagos',
+        name: 'Lagos',
+        code: 'NG-LA',
+      },
+    },
+    {
+      strippedName: 'uyo',
+      name: 'Uyo',
+      code: 'LGA71',
+      state: {
+        strippedName: 'nasarawa',
+        name: 'Nasarawa',
+        code: 'NG-NA',
+      },
+    },
+    {
+      strippedName: 'uyo',
+      name: 'Uyo',
+      code: 'LGA71',
+      state: {
+        strippedName: 'niger',
+        name: 'Niger',
+        code: 'NG-NI',
+      },
+    },
+    {
+      strippedName: 'uyo',
+      name: 'Uyo',
+      code: 'LGA71',
+      state: {
+        strippedName: 'ogun',
+        name: 'Ogun',
+        code: 'NG-OG',
+      },
+    },
+    {
+      strippedName: 'uyo',
+      name: 'Uyo',
+      code: 'LGA71',
+      state: {
+        strippedName: 'ondo',
+        name: 'Ondo',
+        code: 'NG-on',
+      },
+    },
+    {
+      strippedName: 'uyo',
+      name: 'Uyo',
+      code: 'LGA71',
+      state: {
+        strippedName: 'osun',
+        name: 'Osun',
+        code: 'NG-OS',
+      },
+    },
+    {
+      strippedName: 'uyo',
+      name: 'Uyo',
+      code: 'LGA71',
+      state: {
+        strippedName: 'oyo',
+        name: 'Oyo',
+        code: 'NG-OY',
+      },
+    },
+    {
+      strippedName: 'uyo',
+      name: 'Uyo',
+      code: 'LGA71',
+      state: {
+        strippedName: 'plateau',
+        name: 'Plateau',
+        code: 'NG-PL',
+      },
+    },
+    {
+      strippedName: 'uyo',
+      name: 'Uyo',
+      code: 'LGA71',
+      state: {
+        strippedName: 'rivers',
+        name: 'Rivers',
+        code: 'NG-RI',
+      },
+    },
+    {
+      strippedName: 'uyo',
+      name: 'Uyo',
+      code: 'LGA71',
+      state: {
+        strippedName: 'sokoto',
+        name: 'Sokoto',
+        code: 'NG-AN',
+      },
+    },
+    {
+      strippedName: 'uyo',
+      name: 'Uyo',
+      code: 'LGA71',
+      state: {
+        strippedName: 'taraba',
+        name: 'Taraba',
+        code: 'NG-TA',
+      },
+    },
+    {
+      strippedName: 'uyo',
+      name: 'Uyo',
+      code: 'LGA71',
+      state: {
+        strippedName: 'yobe',
+        name: 'Yobe',
+        code: 'NG-YO',
+      },
+    },
+    {
+      strippedName: 'uyo',
+      name: 'Uyo',
+      code: 'LGA71',
+      state: {
+        strippedName: 'zamfara',
+        name: 'Zamfara',
+        code: 'NG-ZA',
+      },
+    },
   ];
 
   constructor(

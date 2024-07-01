@@ -64,3 +64,23 @@ export const camelCaseKeysToUnderscore = (obj: object) => {
   }
   return obj;
 };
+
+export const underscoreKeysToCamelCase = (obj: object) => {
+  if (typeof obj != 'object') return obj;
+  for (const oldName in obj) {
+    const newName = oldName.replace(
+      /_([a-z])/g,
+      (_, p1) => `${p1.toUpperCase()}`,
+    );
+    if (newName != oldName) {
+      if (obj.hasOwnProperty(oldName)) {
+        obj[newName] = obj[oldName];
+        delete obj[oldName];
+      }
+    }
+    if (typeof obj[newName] == 'object') {
+      obj[newName] = underscoreKeysToCamelCase(obj[newName]);
+    }
+  }
+  return obj;
+};
