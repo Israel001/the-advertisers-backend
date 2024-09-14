@@ -3,6 +3,7 @@ import { BaseEntity } from 'src/base/entity';
 import { Currencies, OrderStatus, PaymentType } from 'src/types';
 import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 import { Customer } from '../users/users.entity';
+import { AdminUser } from '../admin/admin.entities';
 
 @Entity('payments', { synchronize: false })
 export class Payment extends BaseEntity {
@@ -68,4 +69,8 @@ export class Order extends BaseEntity {
   @Column('enum', { enum: OrderStatus, default: OrderStatus.PENDING })
   @AutoMap()
   status: OrderStatus;
+
+  @ManyToOne(() => AdminUser, { eager: true })
+  @AutoMap()
+  adminUser: AdminUser;
 }

@@ -39,6 +39,7 @@ export interface IAuthContext {
   type: string;
   store: Store;
   role: Roles;
+  adminUserId?: any;
 }
 
 export enum OrderDir {
@@ -58,6 +59,8 @@ export enum Currencies {
 export enum OrderStatus {
   PENDING = 'PENDING',
   PACKED_AND_READY_TO_SEND = 'PACKED_AND_READY_TO_SEND',
+  PACKED_AND_READY_TO_PICKUP = 'PACKED_AND_READY_TO_PICKUP',
+  PICKED_UP = 'PICKED_UP',
   SENT_FOR_DELIVERY = 'SENT_FOR_DELIVERY',
   IN_PROGRESS = 'IN_PROGRESS',
   DELIVERED = 'DELIVERED',
@@ -72,5 +75,7 @@ export interface IAdminAuthContext {
   name: string;
   email: string;
   userId: number;
+  store?: any;
+  adminUserId: number;
   role: AdminRoles;
 }

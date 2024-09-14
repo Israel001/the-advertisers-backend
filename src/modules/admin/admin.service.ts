@@ -294,11 +294,29 @@ export class AdminService {
   async updateOrderStatus(id: number, status: OrderStatus) {
     const order = await this.orderRepository.findOneBy({ id });
     if (!order) throw new NotFoundException('Order not found');
+    if (status === OrderStatus.PACKED_AND_READY_TO_PICKUP) {
+      // SEND INFORMATION TO CUSTOMER THAT ORDER IS READY FOR PICKUP AT DISTRIBUTION CENTER ADDRESS AND PHONE NUMBER TO CALL
+    }
     const orderModel = this.orderRepository.create({
       id,
       status,
     });
     return this.orderRepository.save(orderModel);
+  }
+
+  async assignOrderToAgent(id: number, agentId: number) {
+    const order = await this.orderRepository.findOneBy({ id });
+    if (!order) throw new NotFoundException('Order not found');
+    const deliveryAgent = await this.adminUserRepository.findOneBy({
+      id: agentId,
+    });
+    if (!deliveryAgent) throw new NotFoundException('Delivery agent not found');
+    return this.orderRepository.save(
+      this.orderRepository.create({
+        id,
+        adminUser: { id: agentId },
+      }),
+    );
   }
 
   async deleteProduct(id: number) {
@@ -620,6 +638,7 @@ export class AdminService {
       name: user.fullName,
       email: user.email,
       role: user.role,
+      adminUserId: user.id,
     };
     const userInfo = await this.findUserByEmail(user.email);
     delete userInfo.password;

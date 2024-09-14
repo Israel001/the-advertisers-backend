@@ -55,7 +55,7 @@ export class ProductsService {
 
   async fetchPopularSales() {
     return this.productRepository.query(
-      `SELECT * FROM products WHERE published = '1' AND deleted_at IS NULL ORDER BY RAND() LIMIT 3`,
+      `SELECT * FROM products WHERE published = '1' AND deleted_at IS NULL ORDER BY RAND() LIMIT 4`,
     );
   }
 
@@ -84,7 +84,7 @@ export class ProductsService {
       relations: ['category', 'mainCategory', 'store'],
     });
     const totalProductInStore = await this.productRepository.countBy({
-      store: { id: product.store.id },
+      store: { id: product?.store?.id },
     });
     product['totalProductInStore'] = totalProductInStore;
     const otherProducts = await this.productRepository.query(
@@ -111,9 +111,7 @@ export class ProductsService {
   ) {
     const { page = 1, limit = 20 } = pagination;
     const baseConditions = {
-      ...(showUnpublishedProducts
-        ? {}
-        : { published: filter?.published === 'true' }),
+      ...(showUnpublishedProducts ? {} : { published: true }),
       ...(filter?.outOfStock
         ? { outOfStock: filter?.outOfStock === 'true' }
         : {}),

@@ -24,6 +24,9 @@ export default class AdminRolesSeed implements ISeeder {
     {
       name: 'Simple User',
     },
+    {
+      name: 'Delivery Agent'
+    }
   ];
 
   constructor(

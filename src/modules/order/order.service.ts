@@ -5,11 +5,18 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { LessThanOrEqual, Like, MoreThanOrEqual, Repository } from 'typeorm';
+import {
+  FindOptionsWhere,
+  LessThanOrEqual,
+  Like,
+  MoreThanOrEqual,
+  Repository,
+} from 'typeorm';
 import { Order, Payment } from './order.entity';
 import { CreateOrderDto, OrderFilter, UpdateOrderDto } from './order.dto';
 import {
   Currencies,
+  IAdminAuthContext,
   IAuthContext,
   OrderDir,
   OrderStatus,
@@ -119,10 +126,10 @@ export class OrderService {
   async fetchOrders(
     pagination: PaginationInput,
     filter: OrderFilter,
-    { userId, store }: IAuthContext,
+    { userId, store, role, adminUserId }: IAuthContext | IAdminAuthContext,
   ) {
     const { page = 1, limit = 10 } = pagination;
-    const conditions = {
+    const conditions: FindOptionsWhere<Order> = {
       ...(userId && !store ? { customer: { id: userId } } : {}),
       ...(store ? { stores: Like(`%${store.id}%`) } : {}),
       ...(filter?.status ? { status: filter?.status } : {}),
@@ -131,6 +138,9 @@ export class OrderService {
         : {}),
       ...(filter?.endDate
         ? { createdAt: LessThanOrEqual(filter?.endDate) }
+        : {}),
+      ...(role.name === 'Delivery Agent'
+        ? { adminUser: { id: adminUserId } }
         : {}),
     };
     const totalOrders = await this.orderRepository.countBy(conditions);

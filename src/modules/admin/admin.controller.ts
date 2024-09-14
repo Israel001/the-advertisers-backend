@@ -42,6 +42,7 @@ import { Repository } from 'typeorm';
 import { UsersService } from '../users/users.service';
 import { AdminRole } from 'src/decorators/admin_roles.decorator';
 import { AdminRoleGuard } from 'src/modules/admin/guards/role-guard';
+import { Request } from 'express';
 
 @Controller('admin')
 @ApiTags('admin')
@@ -377,13 +378,20 @@ export class AdminController {
 
   @Get('orders')
   @AdminRole({
-    roles: ['Super Admin', 'Admin', 'Editor', 'User', 'Simple User'],
+    roles: [
+      'Super Admin',
+      'Admin',
+      'Editor',
+      'User',
+      'Simple User',
+      'Delivery Agent',
+    ],
   })
-  fetchOrders(@Query() query: OrderQuery) {
+  fetchOrders(@Query() query: OrderQuery, @Req() request: Request) {
     return this.orderService.fetchOrders(
       query.pagination,
       query.filter,
-      {} as any,
+      request.user as any,
     );
   }
 
@@ -404,6 +412,39 @@ export class AdminController {
     status: OrderStatus,
   ) {
     return this.service.updateOrderStatus(id, status);
+  }
+
+  @Post('order/:id/collect-product-from-seller/:productId')
+  @AdminRole({ roles: ['Delivery Agent'] })
+  collectProductFromSeller(
+    @Param('id', ParseIntPipe) id: number,
+    @Param('productId', ParseIntPipe) productId: number,
+  ) {
+    return this.service.updateOrderProductStatus(id, {
+      status: 'PRODUCT_COLLECTED_FROM_SELLER_BY_DELIVERY_AGENT',
+      products: [productId],
+    });
+  }
+
+  @Post('order/:id/drop-product-at-dispatch-rider/:productId')
+  @AdminRole({ roles: ['Delivery Agent'] })
+  dropProductAtDistributionCenter(
+    @Param('id', ParseIntPipe) id: number,
+    @Param('productId', ParseIntPipe) productId: number,
+  ) {
+    return this.service.updateOrderProductStatus(id, {
+      status: 'PRODUCT_DROPPED_AT_DISTRIBUTION_CENTER_BY_DELIVERY_AGENT',
+      products: [productId],
+    });
+  }
+
+  @Post('order/:id/assign-to-agent/:agentId')
+  @AdminRole({ roles: ['Super Admin', 'Admin', 'Editor'] })
+  assignOrderToAgent(
+    @Param('id', ParseIntPipe) id: number,
+    @Param('agentId', ParseIntPipe) agentId: number,
+  ) {
+    return this.service.assignOrderToAgent(id, agentId);
   }
 
   @Post('product')
