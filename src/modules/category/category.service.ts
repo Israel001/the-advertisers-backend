@@ -13,6 +13,7 @@ import { OrderDir } from 'src/types';
 import { buildResponseDataWithPagination } from 'src/utils';
 import fs from 'fs';
 import path, { dirname } from 'path';
+import { Products } from '../products/products.entity';
 
 @Injectable()
 export class CategoryService {
@@ -21,6 +22,8 @@ export class CategoryService {
     private readonly mainCategoryRepository: Repository<MainCategory>,
     @InjectRepository(SubCategory)
     private readonly subCategoryRepository: Repository<SubCategory>,
+    @InjectRepository(Products)
+    private readonly productsRepository: Repository<Products>,
   ) {}
 
   private logger = new Logger(CategoryService.name);
@@ -154,5 +157,40 @@ export class CategoryService {
       page,
       limit,
     });
+  }
+
+  async fetchTopCategories() {
+    const categories = await this.subCategoryRepository
+      .createQueryBuilder('subCategory')
+      .leftJoinAndSelect('subCategory.products', 'product') // Ensure proper relation mapping
+      .where('subCategory.deleted_at IS NULL')
+      .addSelect((subQuery) => {
+        return subQuery
+          .select('COUNT(product.id)', 'productCount')
+          .from(Products, 'product')
+          .where('product.category_id = subCategory.id')
+          .andWhere('product.deleted_at IS NULL');
+      }, 'productCount')
+      .groupBy('subCategory.id') // Group by subCategory to avoid duplicates
+      .orderBy('productCount', 'DESC')
+      .limit(3)
+      .getMany(); // Use getMany to avoid returning raw rows
+
+    // Step 2: Fetch 20 random products for each category
+    for (const category of categories) {
+      const products = await this.productsRepository
+        .createQueryBuilder('product')
+        .where('product.category_id = :categoryId', { categoryId: category.id }) // Use category.id
+        .andWhere('product.deleted_at IS NULL')
+        .orderBy('RAND()') // Randomize the product selection
+        .limit(20) // Limit the result to 20 products
+        .getMany();
+
+      // Attach the products array to the category object
+      category.products = products;
+    }
+
+    // Step 3: Return the categories with random products
+    return categories;
   }
 }

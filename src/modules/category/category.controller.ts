@@ -111,4 +111,9 @@ export class CategoryController {
   ) {
     return this.service.updateSubCategory(id, body);
   }
+
+  @Get('top-categories')
+  fetchTopCategories() {
+    return this.service.fetchTopCategories();
+  }
 }

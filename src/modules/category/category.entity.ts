@@ -1,6 +1,7 @@
 import { AutoMap } from '@automapper/classes';
 import { BaseEntity } from 'src/base/entity';
-import { Column, DeleteDateColumn, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, DeleteDateColumn, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import { Products } from '../products/products.entity';
 
 @Entity('main_categories', { synchronize: false })
 export class MainCategory extends BaseEntity {
@@ -48,4 +49,7 @@ export class SubCategory extends BaseEntity {
 
   @DeleteDateColumn()
   deletedAt?: Date;
+
+  @OneToMany(() => Products, (product) => product.category)
+  products: Products[];
 }
