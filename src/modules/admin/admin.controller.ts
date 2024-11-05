@@ -447,6 +447,16 @@ export class AdminController {
     return this.service.assignOrderToAgent(id, agentId);
   }
 
+  @Post('order/:id/store/:storeId/assign-to-agent/:agentId')
+  @AdminRole({ roles: ['Super Admin', 'Admin', 'Editor'] })
+  assignStoreToAgent(
+    @Param('id', ParseIntPipe) id: number,
+    @Param('storeId', ParseIntPipe) storeId: number,
+    @Param('agentId', ParseIntPipe) agentId: number,
+  ) {
+    return this.service.assignStoreToAgent(id, storeId, agentId);
+  }
+
   @Post('product')
   @AdminRole({ roles: ['Super Admin', 'Admin', 'Editor'] })
   @UseInterceptors(

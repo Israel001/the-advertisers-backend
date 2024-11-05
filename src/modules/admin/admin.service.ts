@@ -319,6 +319,28 @@ export class AdminService {
     );
   }
 
+  async assignStoreToAgent(id: number, storeId: number, agentId: number) {
+    const order = await this.orderRepository.findOneBy({ id });
+    if (!order) throw new NotFoundException('Order not found');
+    const deliveryAgent = await this.adminUserRepository.findOneBy({
+      id: agentId,
+    });
+    if (!deliveryAgent) throw new NotFoundException('Delivery agent not found');
+    const orderDetails = JSON.parse(order.details);
+    orderDetails.cart = orderDetails.cart.map((c) => {
+      if (c.storeId === storeId) {
+        c.adminUserId = agentId;
+      }
+      return c;
+    });
+    await this.orderRepository.save(
+      this.orderRepository.create({
+        id,
+        details: JSON.stringify(orderDetails),
+      }),
+    );
+  }
+
   async deleteProduct(id: number) {
     const product = await this.productsRepository.findOneBy({ id });
     if (!product) throw new NotFoundException('Product not found');
