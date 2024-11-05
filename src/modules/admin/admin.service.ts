@@ -75,6 +75,7 @@ export class AdminService {
     email: string;
     password: string;
     roleId: number;
+    phone:string;
   }) {
     const roleExists = await this.adminRoleRepository.findOneBy({
       id: user.roleId,
@@ -86,6 +87,7 @@ export class AdminService {
       email: user.email,
       password: hashedPassword,
       role: { id: user.roleId },
+      phone: user.phone
     });
     return this.adminUserRepository.save(userModel);
   }
@@ -322,10 +324,12 @@ export class AdminService {
   async assignStoreToAgent(id: number, storeId: number, agentId: number) {
     const order = await this.orderRepository.findOneBy({ id });
     if (!order) throw new NotFoundException('Order not found');
+
     const deliveryAgent = await this.adminUserRepository.findOneBy({
       id: agentId,
     });
     if (!deliveryAgent) throw new NotFoundException('Delivery agent not found');
+
     const orderDetails = JSON.parse(order.details);
     orderDetails.cart = orderDetails.cart.map((c) => {
       if (c.storeId === storeId) {
@@ -333,12 +337,18 @@ export class AdminService {
       }
       return c;
     });
+
     await this.orderRepository.save(
       this.orderRepository.create({
         id,
         details: JSON.stringify(orderDetails),
       }),
     );
+
+    return {
+      message: 'Agent successfully assigned to the store',
+      updatedOrderDetails: orderDetails,
+    };
   }
 
   async deleteProduct(id: number) {

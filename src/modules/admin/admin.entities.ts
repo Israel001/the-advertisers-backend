@@ -23,7 +23,7 @@ export class AdminRoles extends BaseEntity {
   name: string;
 }
 
-@Entity('admin_users', { synchronize: false })
+@Entity('admin_users', { synchronize: true })
 export class AdminUser extends BaseEntity {
   @PrimaryGeneratedColumn()
   @AutoMap()
@@ -40,6 +40,10 @@ export class AdminUser extends BaseEntity {
   @Column()
   @AutoMap()
   password: string;
+
+  @Column({ nullable: true })
+  @AutoMap()
+  phone: string;
 
   @ManyToOne(() => AdminRoles, { eager: true })
   role: AdminRoles;

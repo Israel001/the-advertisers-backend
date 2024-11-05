@@ -111,6 +111,7 @@ export class AdminController {
       email: string;
       password: string;
       roleId: number;
+      phone: string;
     },
   ) {
     return this.service.createAdmin(body);
