@@ -1,6 +1,6 @@
 import { AutoMap } from '@automapper/classes';
-import { BaseEntity } from 'src/base/entity';
-import { Currencies, OrderStatus, PaymentType } from 'src/types';
+import { BaseEntity } from '../../base/entity';
+import { Currencies, OrderStatus, PaymentType } from '../../types';
 import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 import { Customer } from '../users/users.entity';
 import { AdminUser } from '../admin/admin.entities';

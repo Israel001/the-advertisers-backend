@@ -1,5 +1,5 @@
 import { AutoMap } from '@automapper/classes';
-import { BaseEntity } from 'src/base/entity';
+import { BaseEntity } from '../base/entity';
 import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity('notification_templates', { synchronize: false })

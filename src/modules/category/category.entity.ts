@@ -1,5 +1,5 @@
 import { AutoMap } from '@automapper/classes';
-import { BaseEntity } from 'src/base/entity';
+import { BaseEntity } from '../../base/entity';
 import { Column, DeleteDateColumn, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 import { Products } from '../products/products.entity';
 

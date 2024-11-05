@@ -1,8 +1,7 @@
 import { AutoMap } from '@automapper/classes';
-import { BaseEntity } from 'src/base/entity';
-import { Lga } from 'src/entities/lga.entity';
-import { State } from 'src/entities/state.entity';
-import { UserType } from 'src/types';
+import { BaseEntity } from '../../base/entity';
+import { State } from '../../entities/state.entity';
+import { UserType } from '../../types';
 import {
   Column,
   DeleteDateColumn,

@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { INotificationTemplatesSeed, ISeeder } from '../seeder.interface';
 import { InjectRepository } from '@nestjs/typeorm';
-import { NotificationTemplates } from 'src/entities/notification-templates.entity';
+import { NotificationTemplates } from '../../entities/notification-templates.entity';
 import { Repository } from 'typeorm';
 import { seederRunner } from '../shared';
 

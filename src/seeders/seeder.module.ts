@@ -1,12 +1,12 @@
 import { DynamicModule, Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { Lga } from 'src/entities/lga.entity';
-import { NotificationTemplates } from 'src/entities/notification-templates.entity';
-import { State } from 'src/entities/state.entity';
-import { Roles } from 'src/modules/users/users.entity';
+import { Lga } from '../entities/lga.entity';
+import { NotificationTemplates } from '../entities/notification-templates.entity';
+import { State } from '../entities/state.entity';
+import { Roles } from '../modules/users/users.entity';
 import databaseConfig from '../config/ormconfig';
 import { ISeederConstructor } from './seeder.interface';
-import { AdminRoles } from 'src/modules/admin/admin.entities';
+import { AdminRoles } from '../modules/admin/admin.entities';
 
 @Module({
   imports: [

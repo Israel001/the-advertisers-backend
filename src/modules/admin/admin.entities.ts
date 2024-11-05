@@ -1,5 +1,5 @@
 import { AutoMap } from '@automapper/classes';
-import { BaseEntity } from 'src/base/entity';
+import { BaseEntity } from '../../base/entity';
 import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity('sliders', { synchronize: false })
