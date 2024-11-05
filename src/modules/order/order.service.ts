@@ -139,7 +139,7 @@ export class OrderService {
       ...(filter?.endDate
         ? { createdAt: LessThanOrEqual(filter?.endDate) }
         : {}),
-      ...(role.name === 'Delivery Agent'
+      ...(role?.name === 'Delivery Agent'
         ? { adminUser: { id: adminUserId } }
         : {}),
     };
