@@ -2,9 +2,8 @@ import { Injectable } from '@nestjs/common';
 import { IRolesSeed, ISeeder } from '../seeder.interface';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { Roles } from 'src/modules/users/users.entity';
 import { seederRunner } from '../shared';
-import { AdminRoles } from 'src/modules/admin/admin.entities';
+import { AdminRoles } from '../../modules/admin/admin.entities';
 
 @Injectable()
 export default class AdminRolesSeed implements ISeeder {

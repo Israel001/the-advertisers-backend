@@ -2,8 +2,8 @@ import { Injectable } from '@nestjs/common';
 import { ILgaSeed, ISeeder } from '../seeder.interface';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { Lga } from 'src/entities/lga.entity';
-import { State } from 'src/entities/state.entity';
+import { Lga } from '../../entities/lga.entity';
+import { State } from '../../entities/state.entity';
 import { seederRunner } from '../shared';
 
 @Injectable()

@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { IRolesSeed, ISeeder } from '../seeder.interface';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { Roles } from 'src/modules/users/users.entity';
+import { Roles } from '../../modules/users/users.entity';
 import { seederRunner } from '../shared';
 
 @Injectable()
