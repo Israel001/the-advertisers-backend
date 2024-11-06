@@ -415,15 +415,15 @@ export class AdminController {
     return this.service.updateOrderStatus(id, status);
   }
 
-  @Post('order/:id/collect-product-from-seller/:productId')
+  @Post('order/:id/collect-product-from-seller')
   @AdminRole({ roles: ['Delivery Agent'] })
   collectProductFromSeller(
     @Param('id', ParseIntPipe) id: number,
-    @Param('productId', ParseIntPipe) productId: number,
+    @Body('products') products: number[],
   ) {
     return this.service.updateOrderProductStatus(id, {
       status: 'PRODUCT_COLLECTED_FROM_SELLER_BY_DELIVERY_AGENT',
-      products: [productId],
+      products,
     });
   }
 
