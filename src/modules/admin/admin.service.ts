@@ -75,7 +75,7 @@ export class AdminService {
     email: string;
     password: string;
     roleId: number;
-    phone:string;
+    phone: string;
   }) {
     const roleExists = await this.adminRoleRepository.findOneBy({
       id: user.roleId,
@@ -87,7 +87,7 @@ export class AdminService {
       email: user.email,
       password: hashedPassword,
       role: { id: user.roleId },
-      phone: user.phone
+      phone: user.phone,
     });
     return this.adminUserRepository.save(userModel);
   }
@@ -321,7 +321,12 @@ export class AdminService {
     );
   }
 
-  async assignStoreToAgent(id: number, storeId: number, agentId: number) {
+  async assignStoreToAgent(
+    id: number,
+    storeId: number,
+    agentId: number,
+    { adminUserId }: IAdminAuthContext,
+  ) {
     const order = await this.orderRepository.findOneBy({ id });
     if (!order) throw new NotFoundException('Order not found');
 
@@ -333,7 +338,11 @@ export class AdminService {
     const orderDetails = JSON.parse(order.details);
     orderDetails.cart = orderDetails.cart.map((c) => {
       if (c.storeId === storeId) {
-        c.adminUserId = agentId;
+        c.adminUserId = adminUserId;
+        c.status = 'Assigned to Courier';
+        c.agentId = agentId;
+        c.agentPhone = deliveryAgent.phone;
+        c.agentName = deliveryAgent.fullName;
       }
       return c;
     });
@@ -666,7 +675,7 @@ export class AdminService {
 
   async login(user: AdminUser) {
     const payload: IAdminAuthContext = {
-      userId: user.id,
+      userId: 0,
       name: user.fullName,
       email: user.email,
       role: user.role,

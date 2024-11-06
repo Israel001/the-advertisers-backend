@@ -17,6 +17,7 @@ import { Products, Reviews } from './products.entity';
 import {
   LessThanOrEqual,
   Like,
+  MoreThan,
   MoreThanOrEqual,
   Not,
   Raw,
@@ -111,6 +112,7 @@ export class ProductsService {
   ) {
     const { page = 1, limit = 20 } = pagination;
     const baseConditions = {
+      id: MoreThan(0),
       ...(showUnpublishedProducts ? {} : { published: true }),
       ...(filter?.outOfStock
         ? { outOfStock: filter?.outOfStock === 'true' }
@@ -149,9 +151,12 @@ export class ProductsService {
         ...(search ? { mainCategory: { name: Like(`%${search}%`) } } : {}),
       },
     ];
-    const totalProducts = await this.productRepository.countBy(allConditions);
+    console.log(allConditions);
+    const totalProducts = await this.productRepository.countBy(
+      allConditions.length ? allConditions : {},
+    );
     const products = await this.productRepository.find({
-      where: allConditions,
+      ...(allConditions.length ? { where: allConditions } : {}),
       order: {
         [pagination.orderBy || 'createdAt']:
           pagination.orderDir || OrderDir.DESC,

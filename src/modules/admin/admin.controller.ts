@@ -454,8 +454,14 @@ export class AdminController {
     @Param('id', ParseIntPipe) id: number,
     @Param('storeId', ParseIntPipe) storeId: number,
     @Param('agentId', ParseIntPipe) agentId: number,
+    @Req() request: Request,
   ) {
-    return this.service.assignStoreToAgent(id, storeId, agentId);
+    return this.service.assignStoreToAgent(
+      id,
+      storeId,
+      agentId,
+      request.user as any,
+    );
   }
 
   @Post('product')
