@@ -368,6 +368,9 @@ export class AdminService {
       this.orderRepository.create({
         id,
         details: JSON.stringify(orderDetails),
+        agents: order.agents
+          ? [...order.agents.split(','), adminUserId].join(',')
+          : adminUserId.toString(),
       }),
     );
 
