@@ -180,6 +180,7 @@ export class CategoryService {
     for (const category of categories) {
       const products = await this.productsRepository
         .createQueryBuilder('product')
+        .leftJoinAndSelect('product.store', 'store')
         .where('product.category_id = :categoryId', { categoryId: category.id }) // Use category.id
         .andWhere('product.deleted_at IS NULL')
         .orderBy('RAND()') // Randomize the product selection

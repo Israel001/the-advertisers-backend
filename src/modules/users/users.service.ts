@@ -311,6 +311,7 @@ export class UsersService {
     const addressModel = this.addressRepository.create({
       customer: { id: customer.id },
       state: { id: user.stateId },
+      name: 'Default Address',
       street: user.street,
       landmark: user.landmark,
       houseNo: user.houseNo,
@@ -576,6 +577,10 @@ export class UsersService {
   }
 
   async saveCart(cartData: string, { userId }: IAuthContext) {
+    const customerExists = await this.customerRepository.findOneBy({
+      id: userId,
+    });
+    if (!customerExists) return;
     const cartExists = await this.cartRepository.findOneBy({
       customer: { id: userId },
     });
