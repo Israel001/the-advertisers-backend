@@ -369,8 +369,10 @@ export class AdminService {
         id,
         details: JSON.stringify(orderDetails),
         agents: order.agents
-          ? [...order.agents.split(','), adminUserId].join(',')
-          : adminUserId.toString(),
+          ? [...new Set([...order.agents.split(','), agentId.toString()])].join(
+              ',',
+            )
+          : agentId.toString(),
       }),
     );
 
