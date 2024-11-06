@@ -97,7 +97,7 @@ export class AdminController {
   }
 
   @Get('fetch-admins')
-  @AdminRole({ roles: ['Super Admin'] })
+  @AdminRole({ roles: ['Super Admin', 'Delivery Agent'] })
   fetchAdmins(@Query() query: dtos.GeneralQuery) {
     return this.service.fetchAdmins(query.search, query.pagination);
   }
