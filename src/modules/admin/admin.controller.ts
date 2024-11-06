@@ -439,6 +439,12 @@ export class AdminController {
     });
   }
 
+  @Get('deliveries')
+  @AdminRole({ roles: ['Delivery Agent'] })
+  fetchDeliveries(@Req() request: Request) {
+    return this.service.fetchDeliveries(request.user as any);
+  }
+
   @Post('order/:id/assign-to-agent/:agentId')
   @AdminRole({ roles: ['Super Admin', 'Admin', 'Editor'] })
   assignOrderToAgent(

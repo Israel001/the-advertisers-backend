@@ -23,7 +23,7 @@ export class AdminRoles extends BaseEntity {
   name: string;
 }
 
-@Entity('admin_users', { synchronize: true })
+@Entity('admin_users', { synchronize: false })
 export class AdminUser extends BaseEntity {
   @PrimaryGeneratedColumn()
   @AutoMap()

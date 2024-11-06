@@ -9,6 +9,7 @@ import { AdminRoles, AdminUser, Slider } from './admin.entities';
 import { IAdminAuthContext, OrderDir, OrderStatus } from 'src/types';
 import { InjectRepository } from '@nestjs/typeorm';
 import {
+  In,
   IsNull,
   LessThanOrEqual,
   Like,
@@ -319,6 +320,22 @@ export class AdminService {
         adminUser: { id: agentId },
       }),
     );
+  }
+
+  async fetchDeliveries({ adminUserId }: IAdminAuthContext) {
+    const ordersAssignedToAgent = await this.orderRepository.find({
+      where: {
+        agents: Like(`%${adminUserId}%`),
+      },
+    });
+    return ordersAssignedToAgent.reduce((prev, cur) => {
+      const orderDetails = JSON.parse(cur.details);
+      prev = [
+        ...prev,
+        ...orderDetails?.cart?.filter((c: any) => c.agentId === adminUserId),
+      ];
+      return prev;
+    }, []);
   }
 
   async assignStoreToAgent(

@@ -73,4 +73,8 @@ export class Order extends BaseEntity {
   @ManyToOne(() => AdminUser, { eager: true })
   @AutoMap()
   adminUser: AdminUser;
+
+  @Column({ nullable: true })
+  @AutoMap()
+  agents: string;
 }
