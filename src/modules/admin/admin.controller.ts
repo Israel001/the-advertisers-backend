@@ -427,15 +427,15 @@ export class AdminController {
     });
   }
 
-  @Post('order/:id/drop-product-at-dispatch-rider/:productId')
+  @Post('order/:id/drop-product-at-distribution-center/:productId')
   @AdminRole({ roles: ['Delivery Agent'] })
   dropProductAtDistributionCenter(
     @Param('id', ParseIntPipe) id: number,
-    @Param('productId', ParseIntPipe) productId: number,
+    @Body('products') products: number[],
   ) {
     return this.service.updateOrderProductStatus(id, {
       status: 'PRODUCT_DROPPED_AT_DISTRIBUTION_CENTER_BY_DELIVERY_AGENT',
-      products: [productId],
+      products,
     });
   }
 
