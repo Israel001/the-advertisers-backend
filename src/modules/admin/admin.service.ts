@@ -328,12 +328,24 @@ export class AdminService {
         agents: Like(`%${adminUserId}%`),
       },
     });
+
     return ordersAssignedToAgent.reduce((prev, cur) => {
       const orderDetails = JSON.parse(cur.details);
-      prev = [
-        ...prev,
-        ...orderDetails?.cart?.filter((c: any) => c.agentId === adminUserId),
-      ];
+
+      const filteredCartItems = orderDetails?.cart?.filter(
+        (c: any) => c.agentId === adminUserId,
+      );
+
+      if (filteredCartItems && filteredCartItems.length > 0) {
+        prev = [
+          ...prev,
+          {
+            orderId: cur.id,
+            cartItems: filteredCartItems,
+          },
+        ];
+      }
+
       return prev;
     }, []);
   }

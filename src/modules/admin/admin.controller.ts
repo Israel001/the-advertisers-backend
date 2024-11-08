@@ -427,7 +427,7 @@ export class AdminController {
     });
   }
 
-  @Post('order/:id/drop-product-at-distribution-center/:productId')
+  @Post('order/:id/drop-product-at-distribution-center')
   @AdminRole({ roles: ['Delivery Agent'] })
   dropProductAtDistributionCenter(
     @Param('id', ParseIntPipe) id: number,
