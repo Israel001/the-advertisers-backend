@@ -401,8 +401,9 @@ export class AdminController {
   updateOrderProductStatus(
     @Param('id', ParseIntPipe) id: number,
     @Body() body: UpdateOrderDto,
+    @Req() request: Request,
   ) {
-    return this.service.updateOrderProductStatus(id, body);
+    return this.service.updateOrderProductStatus(id, body, request.user as any);
   }
 
   @Put('order/:id/:status')
@@ -420,11 +421,18 @@ export class AdminController {
   collectProductFromSeller(
     @Param('id', ParseIntPipe) id: number,
     @Body('products') products: number[],
+    @Body('storeId') storeId: number,
+    @Req() request: Request,
   ) {
-    return this.service.updateOrderProductStatus(id, {
-      status: 'PRODUCT_COLLECTED_FROM_SELLER_BY_DELIVERY_AGENT',
-      products,
-    });
+    return this.service.updateOrderProductStatus(
+      id,
+      {
+        status: 'PRODUCT_COLLECTED_FROM_SELLER_BY_DELIVERY_AGENT',
+        storeId,
+        products,
+      },
+      request.user as any,
+    );
   }
 
   @Post('order/:id/drop-product-at-distribution-center')
@@ -432,11 +440,18 @@ export class AdminController {
   dropProductAtDistributionCenter(
     @Param('id', ParseIntPipe) id: number,
     @Body('products') products: number[],
+    @Body('storeId') storeId: number,
+    @Req() request: Request,
   ) {
-    return this.service.updateOrderProductStatus(id, {
-      status: 'PRODUCT_DROPPED_AT_DISTRIBUTION_CENTER_BY_DELIVERY_AGENT',
-      products,
-    });
+    return this.service.updateOrderProductStatus(
+      id,
+      {
+        status: 'PRODUCT_DROPPED_AT_DISTRIBUTION_CENTER_BY_DELIVERY_AGENT',
+        storeId,
+        products,
+      },
+      request.user as any,
+    );
   }
 
   @Get('deliveries')

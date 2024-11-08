@@ -18,6 +18,7 @@ import { Order } from '../order/order.entity';
 import { MainCategory, SubCategory } from '../category/category.entity';
 import { CategoryModule } from '../category/category.module';
 import { UsersModule } from '../users/users.module';
+import { SharedModule } from '../shared/shared.module';
 
 @Module({
   imports: [
@@ -31,7 +32,7 @@ import { UsersModule } from '../users/users.module';
       Slider,
       MainCategory,
       SubCategory,
-      AdminRoles
+      AdminRoles,
     ]),
     PassportModule,
     ConfigModule.forRoot({ load: [JwtAuthConfiguration] }),
@@ -46,7 +47,8 @@ import { UsersModule } from '../users/users.module';
     ProductsModule,
     OrderModule,
     CategoryModule,
-    UsersModule
+    UsersModule,
+    SharedModule,
   ],
   providers: [AdminService, AdminLocalStrategy, AdminJwtStrategy],
   controllers: [AdminController],

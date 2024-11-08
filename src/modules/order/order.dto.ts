@@ -23,6 +23,9 @@ export class CreateOrderDto {
 }
 
 export class UpdateOrderDto {
+  @IsNumber()
+  storeId: number;
+
   @IsArray()
   products: number[];
 

@@ -34,6 +34,7 @@ import fs from 'fs';
 import path, { dirname } from 'path';
 import { MainCategory, SubCategory } from '../category/category.entity';
 import { UpdateOrderDto } from '../order/order.dto';
+import { SharedService } from '../shared/shared.service';
 
 @Injectable()
 export class AdminService {
@@ -59,6 +60,7 @@ export class AdminService {
     @InjectRepository(AdminRoles)
     private readonly adminRoleRepository: Repository<AdminRoles>,
     private readonly jwtService: JwtService,
+    private readonly sharedService: SharedService,
   ) {}
 
   private logger = new Logger(AdminService.name);
@@ -276,7 +278,11 @@ export class AdminService {
     return this.sliderRepository.save(sliderModel);
   }
 
-  async updateOrderProductStatus(id: number, body: UpdateOrderDto) {
+  async updateOrderProductStatus(
+    id: number,
+    body: UpdateOrderDto,
+    { name }: IAdminAuthContext,
+  ) {
     const order = await this.orderRepository.findOneBy({ id });
     if (!order) throw new NotFoundException('Order not found');
     const orderDetails = JSON.parse(order.details);
@@ -292,13 +298,58 @@ export class AdminService {
         details: JSON.stringify(orderDetails),
       }),
     );
+    const adminUsers = await this.adminUserRepository.findBy({
+      role: { id: 1 },
+    });
+    const store = await this.storeRepository.findOneBy({ id: body.storeId });
+    const emailPromises = adminUsers.map((adminUser) => {
+      return this.sharedService.sendEmail({
+        templateCode: 'agent_update_order',
+        to: adminUser.email,
+        subject: `Delivery Agent Updated Order`,
+        data: {
+          firstname: adminUser.fullName,
+          agentName: name,
+          storeName: store?.storeName,
+          referenceNo: order.reference,
+          orderStatus: body.status,
+          year: new Date().getFullYear(),
+        },
+      });
+    });
+    Promise.allSettled(emailPromises);
   }
 
   async updateOrderStatus(id: number, status: OrderStatus) {
-    const order = await this.orderRepository.findOneBy({ id });
+    const order = await this.orderRepository.findOne({
+      where: { id },
+      relations: ['customer'],
+    });
     if (!order) throw new NotFoundException('Order not found');
     if (status === OrderStatus.PACKED_AND_READY_TO_PICKUP) {
-      // SEND INFORMATION TO CUSTOMER THAT ORDER IS READY FOR PICKUP AT DISTRIBUTION CENTER ADDRESS AND PHONE NUMBER TO CALL
+      this.sharedService.sendEmail({
+        templateCode: 'order_packed_and_ready_to_pickup',
+        to: order?.customer?.email,
+        subject: `Order Packed and Ready To Pickup`,
+        data: {
+          firstname: order?.customer?.fullName,
+          referenceNo: order.reference,
+          centerAddress: '',
+          centerContact: '',
+          year: new Date().getFullYear(),
+        },
+      });
+    } else if (status === OrderStatus.PICKED_UP) {
+      this.sharedService.sendEmail({
+        templateCode: 'order_picked_up',
+        to: order?.customer?.email,
+        subject: `Order Picked Up`,
+        data: {
+          firstname: order?.customer?.fullName,
+          referenceNo: order.reference,
+          year: new Date().getFullYear(),
+        },
+      });
     }
     const orderModel = this.orderRepository.create({
       id,
@@ -364,6 +415,8 @@ export class AdminService {
     });
     if (!deliveryAgent) throw new NotFoundException('Delivery agent not found');
 
+    const store = await this.storeRepository.findOneBy({ id: storeId });
+
     const orderDetails = JSON.parse(order.details);
     orderDetails.cart = orderDetails.cart.map((c) => {
       if (c.storeId === storeId) {
@@ -380,13 +433,28 @@ export class AdminService {
       this.orderRepository.create({
         id,
         details: JSON.stringify(orderDetails),
-        agents: order.agents
-          ? [...new Set([...order.agents.split(','), agentId.toString()])].join(
-              ',',
-            )
-          : agentId.toString(),
+        agents: agentId.toString(),
+        // agents: order.agents
+        //   ? [...new Set([...order.agents.split(','), agentId.toString()])].join(
+        //       ',',
+        //     )
+        //   : agentId.toString(),
       }),
     );
+
+    this.sharedService.sendEmail({
+      templateCode: 'assign_store_to_agent',
+      to: deliveryAgent.email,
+      subject: `Task Assigned`,
+      data: {
+        firstname: deliveryAgent.fullName,
+        storeName: store?.storeName,
+        storeContact: store?.contactPhone,
+        storeAddress: store?.address,
+        adminLink: `https://the-advertisers-admin.vercel.app/`,
+        year: new Date().getFullYear(),
+      },
+    });
 
     return {
       message: 'Agent successfully assigned to the store',

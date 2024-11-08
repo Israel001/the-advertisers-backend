@@ -28,6 +28,8 @@ import axios from 'axios';
 import { PaystackConfig } from 'src/config/types/paystack.config';
 import { ConfigService } from '@nestjs/config';
 import { v4 as uuidv4 } from 'uuid';
+import { AdminUser } from '../admin/admin.entities';
+import { SharedService } from '../shared/shared.service';
 
 @Injectable()
 export class OrderService {
@@ -38,7 +40,10 @@ export class OrderService {
     private readonly orderRepository: Repository<Order>,
     @InjectRepository(Payment)
     private readonly paymentRepository: Repository<Payment>,
+    @InjectRepository(AdminUser)
+    private readonly adminUserRepository: Repository<AdminUser>,
     private readonly configService: ConfigService,
+    private readonly sharedService: SharedService,
   ) {
     this.paystackConfig =
       this.configService.get<PaystackConfig>('paystackConfig');
@@ -64,6 +69,24 @@ export class OrderService {
         status: OrderStatus.IN_PROGRESS,
       }),
     );
+    const adminUsers = await this.adminUserRepository.findBy({
+      role: { id: 1 },
+    });
+    const emailPromises = adminUsers.map((adminUser) => {
+      return this.sharedService.sendEmail({
+        templateCode: 'seller_update_order',
+        to: adminUser.email,
+        subject: `Seller Updated Order`,
+        data: {
+          firstname: adminUser.fullName,
+          storeName: store.storeName,
+          referenceNo: order.reference,
+          orderStatus: body.status,
+          year: new Date().getFullYear(),
+        },
+      });
+    });
+    Promise.allSettled(emailPromises);
   }
 
   async verifyTransaction(transactionId: string, amount: number) {
