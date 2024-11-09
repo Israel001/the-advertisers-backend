@@ -392,6 +392,7 @@ export class AdminService {
           ...prev,
           {
             orderId: cur.id,
+            referenceNumber: cur.reference,
             cartItems: filteredCartItems,
           },
         ];
@@ -442,7 +443,7 @@ export class AdminService {
       }),
     );
 
-    this.sharedService.sendEmail({
+    const response = await this.sharedService.sendEmail({
       templateCode: 'assign_store_to_agent',
       to: deliveryAgent.email,
       subject: `Task Assigned`,
@@ -455,6 +456,8 @@ export class AdminService {
         year: new Date().getFullYear(),
       },
     });
+
+    console.log("email-response", response)
 
     return {
       message: 'Agent successfully assigned to the store',

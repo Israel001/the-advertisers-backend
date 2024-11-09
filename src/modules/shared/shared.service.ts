@@ -41,7 +41,6 @@ export class SharedService {
       host: this.smtpConfig.host,
       port: this.smtpConfig.port,
       secure: true,
-      from: 'The-Advertisers <no-reply@the-advertisers.com>',
       auth: {
         user: this.smtpConfig.username,
         pass: this.smtpConfig.password,
@@ -61,8 +60,8 @@ export class SharedService {
       ? replacer(0, Object.entries(email.data), notificationTemplate.body)
       : notificationTemplate.body;
     delete email.templateCode;
-    if (!email.bcc) email.bcc = 'admin@the-advertisers.com';
-    if (!email.from) email.from = 'The-Advertisers <no-reply@the-advertisers.com>';
+    if (!email.bcc) email.bcc = 'info@travelbreathe.com';
+    if (!email.from) email.from = 'The-Advertisers <info@travelbreathe.com>';
     sendMail(email);
   }
 
